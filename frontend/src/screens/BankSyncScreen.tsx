@@ -8,9 +8,11 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Alert,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as DocumentPicker from 'expo-document-picker';
 
 const { width } = Dimensions.get('window');
 const isLargeDevice = width >= 400;
@@ -30,6 +32,8 @@ type BankSyncScreenProps = {
 export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   const [syncingBank, setSyncingBank] = useState<string | null>(null);
   const [syncComplete, setSyncComplete] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleBankSelect = (bankId: string) => {
     setSyncingBank(bankId);
@@ -37,6 +41,76 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
     setTimeout(() => {
       setSyncComplete(true);
     }, 2000);
+  };
+
+  const handleCsvUpload = async () => {
+    try {
+      setIsUploading(true);
+      
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'text/csv',
+        copyToCacheDirectory: true,
+      });
+      
+      if (result.canceled) {
+        setIsUploading(false);
+        return;
+      }
+  
+      const file = result.assets[0];
+      setUploadedFile(file.name);
+  
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append('csv', {
+        uri: file.uri,
+        name: file.name,
+        type: 'text/csv',
+      } as any);
+  
+      // Send to backend
+      
+      const response = await fetch('http://10.20.59.36:5001/analyze_spending', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+
+      /*
+      const response = await fetch('http://127.0.0.1:5000', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      */
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const analysis = await response.json();
+      console.log('Analysis results:', analysis);
+      
+      Alert.alert(
+        "Analysis Complete",
+        "Transactions processed successfully!",
+        [{ text: "OK" }]
+      );
+  
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert(
+        "Upload Failed",
+        error instanceof Error ? error.message : "Failed to process CSV",
+        [{ text: "OK" }]
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleContinue = () => {
@@ -101,6 +175,41 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
                 Your bank account has been successfully connected. You can now start
                 tracking your finances.
               </Text>
+              
+              {/* CSV Upload Section */}
+              <View style={styles.uploadSection}>
+                <Text style={styles.uploadTitle}>Import Transaction Data</Text>
+                <Text style={styles.uploadInfo}>
+                  Optionally, you can upload a CSV file with your transaction history.
+                </Text>
+                
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={handleCsvUpload}
+                  disabled={isUploading}
+                >
+                  <MaterialCommunityIcons
+                    name="file-upload"
+                    size={20}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.uploadButtonText}>
+                    {isUploading ? "Uploading..." : "Upload CSV File"}
+                  </Text>
+                </TouchableOpacity>
+                
+                {uploadedFile && (
+                  <View style={styles.fileInfo}>
+                    <MaterialCommunityIcons
+                      name="file-check"
+                      size={20}
+                      color="#059669"
+                    />
+                    <Text style={styles.fileInfoText}>{uploadedFile}</Text>
+                  </View>
+                )}
+              </View>
+              
               <TouchableOpacity
                 style={styles.continueButton}
                 onPress={handleContinue}
@@ -216,6 +325,59 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
+  // New styles for CSV upload
+  uploadSection: {
+    width: '100%',
+    marginTop: 8,
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  uploadTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  uploadInfo: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 16,
+  },
+  uploadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4F46E5',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  uploadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  fileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ECFDF5',
+    borderRadius: 8,
+    width: '100%',
+  },
+  fileInfoText: {
+    fontSize: 14,
+    color: '#059669',
+    marginLeft: 8,
+    flex: 1,
+  },
   continueButton: {
     backgroundColor: '#4F46E5',
     paddingVertical: 16,
@@ -243,4 +405,4 @@ const styles = StyleSheet.create({
     color: '#059669',
     marginLeft: 12,
   },
-}); 
+});
