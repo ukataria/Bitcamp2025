@@ -13,6 +13,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Get device dimensions to create responsive layouts
 const { width } = Dimensions.get('window');
@@ -166,9 +167,9 @@ const mockInsights: InsightType[] = [
 export default function MainAppScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [categories] = useState<Category[]>([
-    { 
-      name: 'Food', 
-      budget: 500, 
+    {
+      name: 'Food',
+      budget: 500,
       icon: 'food',
       insights: [
         'Grocery spending is 15% higher than similar households',
@@ -176,9 +177,9 @@ export default function MainAppScreen() {
         "Frequent stores: Whole Foods (65%), Trader Joe's (25%)",
       ],
     },
-    { 
-      name: 'Entertainment', 
-      budget: 200, 
+    {
+      name: 'Entertainment',
+      budget: 200,
       icon: 'movie',
       insights: [
         'Subscription overlap detected',
@@ -186,9 +187,9 @@ export default function MainAppScreen() {
         'Digital vs Physical: 80% digital purchases',
       ],
     },
-    { 
-      name: 'Transport', 
-      budget: 300, 
+    {
+      name: 'Transport',
+      budget: 300,
       icon: 'car',
       insights: [
         'Public transit could save $150/month',
@@ -196,9 +197,9 @@ export default function MainAppScreen() {
         'Consider carpooling options',
       ],
     },
-    { 
-      name: 'Housing', 
-      budget: 2000, 
+    {
+      name: 'Housing',
+      budget: 2000,
       icon: 'home',
       insights: [
         'Utilities 20% above average',
@@ -243,6 +244,17 @@ export default function MainAppScreen() {
     });
   };
 
+
+  const loadAnalysis = async () => {
+    try {
+      const data = await AsyncStorage.getItem('analysisData');
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error('Loading error', e);
+    }
+  };
+
+
   const deleteTransaction = (id: string) => {
     setTransactions(transactions.filter(t => t.id !== id));
   };
@@ -259,11 +271,11 @@ export default function MainAppScreen() {
 
   const renderInsightCard = (insight: InsightType) => (
     <View style={[styles.insightCard, styles[`${insight.type}Card`]]}>
-      <MaterialCommunityIcons 
-        name={insight.icon} 
-        size={24} 
-        color={insight.type === 'warning' ? '#DC2626' : 
-               insight.type === 'tip' ? '#2563EB' : '#059669'} 
+      <MaterialCommunityIcons
+        name={insight.icon}
+        size={24}
+        color={insight.type === 'warning' ? '#DC2626' :
+          insight.type === 'tip' ? '#2563EB' : '#059669'}
       />
       <View style={styles.insightContent}>
         <Text style={styles.insightTitle}>{insight.title}</Text>
@@ -283,9 +295,9 @@ export default function MainAppScreen() {
           <Text style={styles.headerText}>Smart Finance</Text>
         </View>
       </View>
-      
-      <ScrollView 
-        style={styles.container} 
+
+      <ScrollView
+        style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -414,8 +426,8 @@ export default function MainAppScreen() {
                               percentage > 100
                                 ? '#DC2626'
                                 : percentage > 75
-                                ? '#D97706'
-                                : '#059669',
+                                  ? '#D97706'
+                                  : '#059669',
                           },
                         ]}
                       />
@@ -512,7 +524,7 @@ export default function MainAppScreen() {
                       style={[
                         styles.typeButtonText,
                         newTransaction.type === 'expense' &&
-                          styles.activeTypeButtonText,
+                        styles.activeTypeButtonText,
                       ]}
                     >
                       Expense
@@ -534,7 +546,7 @@ export default function MainAppScreen() {
                       style={[
                         styles.typeButtonText,
                         newTransaction.type === 'income' &&
-                          styles.activeTypeButtonText,
+                        styles.activeTypeButtonText,
                       ]}
                     >
                       Income

@@ -79,17 +79,14 @@ def analyze_chunk():
 
     print(f"Received frame: {file.filename}")
 
-    #actions = gemini.analyzeCSV(csvfilename)
-    gemini.initChat(csvfilename)
+    # actions = gemini.analyzeCSV(csvfilename)
+    # gemini.initChat(csvfilename)
 
     top_transactions = parse_csv_for_transactions(csvfilename)
 
     os.remove(csvfilename)
 
-    return jsonify({
-        #"actions": actions,
-        "top_transactions": top_transactions
-    })
+    return jsonify([{"Actions": ["Prioritize public transportation or walking/biking for shorter distances.", "Compare prices between different ride-sharing apps before booking.", "Plan trips to consolidate errands and reduce the number of individual rides needed.", "Evaluate if the Uber One subscription ($9.99/month) provides sufficient savings on rides and deliveries compared to your actual usage.", "Explore carpooling options where feasible."], "Reason": "Analysis shows consistently high spending on Uber Trips (e.g., $48.83, $39.39, $47.35, $53.13, $71.69, $113.78) and Lyft (e.g., $19.70, $13.32, $48.99) across several months. This category represents a significant portion of discretionary spending.", "Title": "Reduce Ride-Sharing Costs (Uber/Lyft)"}, {"Actions": ["Increase home cooking frequency; plan meals and prep ingredients in advance.", "Set a specific weekly or monthly budget for dining out and food delivery.", "Reduce reliance on food delivery apps; opt for pickup to save on fees or cook instead.", "Limit small, frequent purchases like vending machine snacks/drinks (multiple charges of $1.85, $3.60, $7.00 etc.).", "Look for restaurant deals, happy hour specials, or loyalty programs.", "Maximize value from any existing campus dining plans (e.g., Carnegie Mellon Dining)."], "Reason": "Frequent and substantial spending occurs on food delivery (primarily Uber Eats, with multiple orders like $35.42, $34.41, $65.19, $38.87) and dining out (including frequent campus dining, Chipotle, VEND vending machines, and various restaurants). This is a major spending category with potential for significant savings.", "Title": "Optimize Food Delivery & Dining Expenses"}, {"Actions": ["Always create a shopping list before grocery shopping or visiting general merchandise stores like Target.", "Compare prices between grocery stores and consider store brands for savings.", "Analyze if grocery delivery services like Instacart are cost-effective compared to shopping in person, factoring in fees and potential impulse buys.", "Review past large shopping trips (e.g., Target) to identify patterns of non-essential spending.", "Take advantage of loyalty programs, coupons, and sales for groceries and merchandise."], "Reason": "Significant expenditures identified in the Merchandise category, including large purchases at Target ($316.95, $162.84), Instacart ($110.70, $92.68), Whole Foods ($105.13), and various smaller markets (Salem's, Trader Joe's). These add up considerably over time.", "Title": "Control Grocery & Merchandise Spending"}, {"Actions": ["Assess whether the actual savings from the Uber One subscription (e.g., delivery fee waivers, ride discounts) consistently exceed the $9.99 monthly fee.", "Regularly review credit card statements for other recurring charges or subscriptions that may no longer be necessary or frequently used."], "Reason": "The data shows a recurring charge for Uber One ($9.99 monthly), offset by statement credits. While potentially beneficial, its value depends on usage.", "Title": "Review Subscriptions & Recurring Costs"}])
 
 @app.route("/new_transaction", methods=["POST"])
 def new_transaction():
