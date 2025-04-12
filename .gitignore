@@ -1,8 +1,11 @@
-# Python Environment
+# Python 
 .bitcamp
+*.pyc
+*.ipynb
 
 # environments
 .env
 
 # MACOS bullshit
 .DS_store
+
