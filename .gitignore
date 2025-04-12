@@ -1,6 +1,7 @@
 # Python 
 .bitcamp
 *.pyc
+*.ipynb
 
 # environments
 .env
