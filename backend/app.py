@@ -4,9 +4,10 @@ from flask_cors import CORS
 from datetime import datetime
 import os
 
-from gemini import analyzeCSV
+import gemini
 
 csvpath = os.environ["CSVPATH"]
+csvfilename = ""
 
 app = Flask(__name__)
 CORS(app) 
@@ -22,17 +23,24 @@ def analyze_chunk():
         return jsonify({"error": "No file provided"}), 400
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    filename = f"{timestamp}_{file.filename}"
+    csvfilename = csvpath + f"{timestamp}_{file.filename}"
 
-    file.save(csvpath + filename)
+    file.save(csvfilename)
 
     print(f"Received frame: {file.filename}")
 
-    actions = analyzeCSV(csvpath + filename)
+    actions = gemini.analyzeCSV(csvfilename)
+    gemini.initChat(csvfilename)
 
-    os.remove(csvpath + filename)
+    os.remove(csvfilename)
 
     return jsonify(actions)
+
+@app.route("/new_transaction", methods=["POST"])
+def new_transaction():
+    data = request.form
+
+    return jsonify(gemini.newTransaction(data))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
