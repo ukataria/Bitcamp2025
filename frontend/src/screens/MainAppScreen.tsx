@@ -372,7 +372,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.transactionsList}>
-              {transactions.splice(0, 10).map(transaction => (
+              {transactions.slice(0, 10).map(transaction => (
                 <View key={transaction.id} style={styles.transactionItem}>
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionDescription}>
