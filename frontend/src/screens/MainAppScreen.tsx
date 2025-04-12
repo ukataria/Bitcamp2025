@@ -186,10 +186,13 @@ export default function MainAppScreen({ route }) {
     transformedImportedTransactions.length > 0 ? transformedImportedTransactions : mockTransactions
   );
 
+export default function MainAppScreen({ route }: { route: any }) {
+  const analysis = route.params?.analysis;
+  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [categories] = useState<Category[]>([
-    { 
-      name: 'Food', 
-      budget: 500, 
+    {
+      name: 'Food',
+      budget: 500,
       icon: 'food',
       insights: [
         'Grocery spending is 15% higher than similar households',
@@ -197,9 +200,9 @@ export default function MainAppScreen({ route }) {
         "Frequent stores: Whole Foods (65%), Trader Joe's (25%)",
       ],
     },
-    { 
-      name: 'Entertainment', 
-      budget: 200, 
+    {
+      name: 'Entertainment',
+      budget: 200,
       icon: 'movie',
       insights: [
         'Subscription overlap detected',
@@ -207,9 +210,9 @@ export default function MainAppScreen({ route }) {
         'Digital vs Physical: 80% digital purchases',
       ],
     },
-    { 
-      name: 'Transport', 
-      budget: 300, 
+    {
+      name: 'Transport',
+      budget: 300,
       icon: 'car',
       insights: [
         'Public transit could save $150/month',
@@ -217,9 +220,9 @@ export default function MainAppScreen({ route }) {
         'Consider carpooling options',
       ],
     },
-    { 
-      name: 'Housing', 
-      budget: 2000, 
+    {
+      name: 'Housing',
+      budget: 2000,
       icon: 'home',
       insights: [
         'Utilities 20% above average',
@@ -270,6 +273,26 @@ export default function MainAppScreen({ route }) {
     }
   };
 
+  const analysisMapping = (item: any): InsightType => {
+    const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+      warning: 'alert-circle',
+      achievement: 'trophy',
+      tip: 'lightbulb',
+    };
+
+    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[item.type?.toLowerCase()] ?? 'info';
+
+    return {
+      title: item.title,
+      description: item.description,
+      type: item.type,
+      icon: icon,
+    };
+  }
+
+  // Generate Insights from Analysis
+  const insights: InsightType[] = analysis.actions.map((item: any) => analysisMapping(item));
+
   const addTransaction = () => {
     if (!newTransaction.description || !newTransaction.amount) return;
 
@@ -306,11 +329,11 @@ export default function MainAppScreen({ route }) {
 
   const renderInsightCard = (insight: InsightType) => (
     <View style={[styles.insightCard, styles[`${insight.type}Card`]]}>
-      <MaterialCommunityIcons 
-        name={insight.icon} 
-        size={24} 
-        color={insight.type === 'warning' ? '#DC2626' : 
-               insight.type === 'tip' ? '#2563EB' : '#059669'} 
+      <MaterialCommunityIcons
+        name={insight.icon}
+        size={24}
+        color={insight.type === 'warning' ? '#DC2626' :
+          insight.type === 'tip' ? '#2563EB' : '#059669'}
       />
       <View style={styles.insightContent}>
         <Text style={styles.insightTitle}>{insight.title}</Text>
@@ -330,9 +353,9 @@ export default function MainAppScreen({ route }) {
           <Text style={styles.headerText}>Smart Finance</Text>
         </View>
       </View>
-      
-      <ScrollView 
-        style={styles.container} 
+
+      <ScrollView
+        style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -370,7 +393,7 @@ export default function MainAppScreen({ route }) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>AI Insights</Text>
             <View style={styles.insightsList}>
-              {mockInsights.map((insight, index) => (
+              {insights.map((insight, index) => (
                 <View key={index}>
                   {renderInsightCard(insight)}
                 </View>
@@ -462,8 +485,8 @@ export default function MainAppScreen({ route }) {
                               percentage > 100
                                 ? '#DC2626'
                                 : percentage > 75
-                                ? '#D97706'
-                                : '#059669',
+                                  ? '#D97706'
+                                  : '#059669',
                           },
                         ]}
                       />
@@ -560,7 +583,7 @@ export default function MainAppScreen({ route }) {
                       style={[
                         styles.typeButtonText,
                         newTransaction.type === 'expense' &&
-                          styles.activeTypeButtonText,
+                        styles.activeTypeButtonText,
                       ]}
                     >
                       Expense
@@ -582,7 +605,7 @@ export default function MainAppScreen({ route }) {
                       style={[
                         styles.typeButtonText,
                         newTransaction.type === 'income' &&
-                          styles.activeTypeButtonText,
+                        styles.activeTypeButtonText,
                       ]}
                     >
                       Income
@@ -885,4 +908,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginLeft: 8,
   },
-}); 
+});

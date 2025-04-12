@@ -1,6 +1,7 @@
 from google import genai
 from pydantic import BaseModel
 
+import enum
 import time
 import os
 
@@ -9,10 +10,16 @@ google_api_key = os.environ["GOOGLE_API_KEY"]
 client = genai.Client(api_key=google_api_key)
 chat = client.chats.create(model="gemini-2.0-flash")
 
+
+class InsightClassification(enum.Enum):
+    WARNING = "warning"
+    TIP = "tip"
+    ACHIEVEMENT = "achievement"
+
 class ActionableReccomendations(BaseModel):
-  groupTitle: str
-  reason: str
-  actions: list[str]
+  title: str
+  description: str
+  type: InsightClassification
 
 class PaymentClassification(BaseModel):
   necessarySpend: float
@@ -26,23 +33,34 @@ def responseToJSON(response):
     reccomendations = []
 
     for action in actions:
-        reccomendations.append({"Title" : action.groupTitle, "Reason": action.reason, "Actions": action.actions})
+        reccomendations.append({"title" : action.title, "description" : action.description, "type" : action.type.value})
     return reccomendations
 
 def analyzeCSV(filename):
-    prompt = """ 
+    prompt =  """ 
     I have a CSV file containing transaction data with the following columns:
     - Date (format: YYYY-MM-DD)
     - Vendor (name/description of the merchant)
     - Amount (transaction amount in USD)
     - Category (e.g., Groceries, Dining, Entertainment, etc.)
 
-    Please analyze this data and generate a detailed report that includes
+    Please analyze this data and generate a detailed report of spending insights. 
+    Spending insights are important notes about a user's spending habits. There are three types. Alerts: which are issues in the users spending habits, Tips: which are small changes but not that concerning, Achievements: which is progress that the user has made. 
 
-    **Actionable Recommendations** for how users can adjust their spending habits to shop smarter. For instance, if a certain category shows excessive spending, suggest cost-saving alternatives or tips to curb that expense.
+    Here are three examples:
+    title: 'Recurring Subscription Alert',
+    description: 'You have 3 overlapping streaming subscriptions totaling $35/month. Consider reviewing Netflix, Hulu, and Disney+ subscriptions.',
+    type: 'warning',
 
-    Please make your analysis as detailed and comprehensive as possible, explaining complex insights step by step and providing numerical details wherever available. Format your output in clearly segmented sections (Overview, Temporal Analysis, Category Analysis, Vendor Analysis, and Recommendations).
+    title: 'Smart Shopping Opportunity',
+    description: 'Your grocery spending peaks on weekends. Shopping on Wednesday evenings could save you ~15 percent based on historical prices.',
+    type: 'tip',
 
+    title: 'Savings Milestone',
+    description: "Great job! You've reduced dining out expenses by 20 percent compared to last month.",
+    type: 'achievement',
+
+    Your output should be eactly one achievement, one tip, and one warning.
     """
 
     csv_file = client.files.upload(file=filename)

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import {
   View,
   Text,
@@ -47,20 +48,20 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   const handleCsvUpload = async () => {
     try {
       setIsUploading(true);
-      
+
       const result = await DocumentPicker.getDocumentAsync({
         type: 'text/csv',
         copyToCacheDirectory: true,
       });
-      
+
       if (result.canceled) {
         setIsUploading(false);
         return;
       }
-  
+
       const file = result.assets[0];
       setUploadedFile(file.name);
-  
+
       // Create form data for upload
       const formData = new FormData();
       formData.append('csv', {
@@ -68,10 +69,10 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
         name: file.name,
         type: 'text/csv',
       } as any);
-  
+
       // Send to backend
-      
-      const response = await fetch('http://10.20.59.36:5001/analyze_spending', {
+
+      const response = await fetch('http://10.20.59.57:5001/analyze_spending', {
         method: 'POST',
         body: formData,
         headers: {
@@ -79,21 +80,21 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
         },
       });
 
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log('Analysis results:', data);
       setAnalysis(data);
-      
+
       Alert.alert(
         "Analysis Complete",
         "Transactions processed successfully!",
         [{ text: "OK" }]
       );
-  
+
     } catch (error) {
       console.error('Upload error:', error);
       Alert.alert(
@@ -107,7 +108,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('MainApp', {analysis});
+    navigation.navigate('MainApp', {analysis });
   };
 
   return (
@@ -168,14 +169,14 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
                 Your bank account has been successfully connected. You can now start
                 tracking your finances.
               </Text>
-              
+
               {/* CSV Upload Section */}
               <View style={styles.uploadSection}>
                 <Text style={styles.uploadTitle}>Import Transaction Data</Text>
                 <Text style={styles.uploadInfo}>
                   Optionally, you can upload a CSV file with your transaction history.
                 </Text>
-                
+
                 <TouchableOpacity
                   style={styles.uploadButton}
                   onPress={handleCsvUpload}
@@ -190,22 +191,26 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
                     {isUploading ? "Uploading..." : "Upload CSV File"}
                   </Text>
                 </TouchableOpacity>
-                
+
                 {uploadedFile && (
                   <View style={styles.fileInfo}>
                     <MaterialCommunityIcons
                       name="file-check"
                       size={20}
-                      color="#059669"
+                      color={"#059669"}
                     />
                     <Text style={styles.fileInfoText}>{uploadedFile}</Text>
                   </View>
                 )}
               </View>
-              
+
               <TouchableOpacity
-                style={styles.continueButton}
+                style={[
+                  styles.continueButton,
+                  { backgroundColor: isUploading ? 'gray' : 'blue' } // change color dynamically
+                ]}
                 onPress={handleContinue}
+                disabled={isUploading}
               >
                 <Text style={styles.continueButtonText}>Continue to Dashboard</Text>
               </TouchableOpacity>
@@ -221,7 +226,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 

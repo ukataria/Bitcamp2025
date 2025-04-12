@@ -76,17 +76,33 @@ def analyze_chunk():
 
     print(f"Received frame: {file.filename}")
 
-    actions = gemini.analyzeCSV(csvfilename)
-    gemini.initChat(csvfilename)
 
     top_transactions = parse_csv_for_transactions(csvfilename)
 
-    os.remove(csvfilename)
 
-    return jsonify({
-        "actions": actions,
-        "top_transactions": top_transactions
-    })
+    # return jsonify({"actions" : [
+    #     {
+    #         "description": "Spending on Uber services (Trips and Eats) occurred 24 times between October and mid-December, totaling over $550. Reviewing this frequency could reveal savings opportunities.",
+    #         "title": "High Ride-Share & Delivery Frequency",
+    #         "type": "warning"
+    #     },
+    #     {
+    #         "description": "Small purchases from vending machines ('VEND 1800-766-8728') added up to over $30 across 16 transactions since August. Packing snacks could be more cost-effective.",
+    #         "title": "Vending Machine Habit",
+    #         "type": "tip"
+    #     },
+    #     {
+    #         "description": "Excellent work managing your credit! You consistently made large payments towards your balance, including $811.87 in September, $960.86 in October, and $857.84 in November.",
+    #         "title": "Consistent Payment Achievement",
+    #         "type": "achievement"
+    #     }
+    # ], "top_transactions" : top_transactions})
+
+    actions = gemini.analyzeCSV(csvfilename)
+    gemini.initChat(csvfilename)
+
+    os.remove(csvfilename)
+    return jsonify({"actions" : actions, "top_transactions" : top_transactions})
 
 @app.route("/new_transaction", methods=["POST"])
 def new_transaction():
