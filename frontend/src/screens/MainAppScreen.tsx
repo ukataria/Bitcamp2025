@@ -181,7 +181,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     };
 
     const nameMap: Record<string, string> = {
-      meals: 'Meals',
+      meals: 'Food & Drink',
       groceries: 'Groceries',
       travel: 'Travel',
       entertainment: 'Entertainment'
@@ -372,7 +372,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.transactionsList}>
-              {transactions.map(transaction => (
+              {transactions.splice(0, 10).map(transaction => (
                 <View key={transaction.id} style={styles.transactionItem}>
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionDescription}>
@@ -597,283 +597,283 @@ export default function MainAppScreen({ route }: { route?: any }) {
   );
 }
 
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: '#FFFFFF',
-    },
-    container: {
-      flex: 1,
-      backgroundColor: '#F3F4F6',
-    },
-    scrollContent: {
-      paddingBottom: 80, // Increased bottom padding for better scrolling experience
-    },
-    header: {
-      paddingVertical: 16,
-      paddingHorizontal: isLargeDevice ? 24 : 16,
-      backgroundColor: 'white',
-      borderBottomWidth: 1,
-      borderBottomColor: '#E5E7EB',
-      // marginTop is now set dynamically in the component
-    },
-    headerContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    headerText: {
-      fontSize: isLargeDevice ? 24 : 22,
-      fontWeight: 'bold',
-      marginLeft: 16,
-      color: '#111827',
-    },
-    cards: {
-      padding: isLargeDevice ? 24 : 16,
-      marginTop: 16,
-    },
-    card: {
-      backgroundColor: 'white',
-      borderRadius: 16,
-      padding: isLargeDevice ? 20 : 16,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 3,
-      marginBottom: isLargeDevice ? 20 : 16,
-    },
-    cardHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    cardTitle: {
-      fontSize: isLargeDevice ? 18 : 16,
-      color: '#6B7280',
-    },
-    cardAmount: {
-      fontSize: isLargeDevice ? 32 : 28,
-      fontWeight: 'bold',
-      color: '#111827',
-    },
-    incomeText: {
-      color: '#22C55E',
-    },
-    expenseText: {
-      color: '#EF4444',
-    },
-    content: {
-      paddingHorizontal: isLargeDevice ? 24 : 16,
-      paddingTop: 8,
-    },
-    section: {
-      backgroundColor: 'white',
-      borderRadius: 16,
-      padding: isLargeDevice ? 24 : 20,
-      marginBottom: 24,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 3,
-    },
-    sectionTitle: {
-      fontSize: isLargeDevice ? 20 : 18,
-      fontWeight: 'bold',
-      marginBottom: 16,
-      color: '#111827',
-    },
-    insightsList: {
-      gap: 12,
-    },
-    insightCard: {
-      flexDirection: 'row',
-      padding: 16,
-      backgroundColor: '#F9FAFB',
-      borderRadius: 12,
-      alignItems: 'flex-start',
-    },
-    warningCard: {
-      backgroundColor: '#FEF2F2',
-    },
-    tipCard: {
-      backgroundColor: '#EFF6FF',
-    },
-    achievementCard: {
-      backgroundColor: '#F0FDF4',
-    },
-    insightContent: {
-      marginLeft: 12,
-      flex: 1,
-    },
-    insightTitle: {
-      fontSize: 16,
-      fontWeight: '600',
-      marginBottom: 4,
-      color: '#111827',
-    },
-    insightDescription: {
-      fontSize: 14,
-      color: '#6B7280',
-      lineHeight: 20,
-    },
-    transactionsList: {
-      gap: 12,
-    },
-    transactionItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      backgroundColor: '#F9FAFB',
-      borderRadius: 12,
-    },
-    transactionInfo: {
-      flex: 1,
-    },
-    transactionDescription: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#111827',
-      marginBottom: 4,
-    },
-    transactionMeta: {
-      fontSize: 14,
-      color: '#6B7280',
-    },
-    transactionAmount: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-    },
-    amount: {
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    deleteButton: {
-      padding: 8,
-    },
-    emptyText: {
-      fontSize: 16,
-      color: '#6B7280',
-      textAlign: 'center',
-      padding: 20,
-    },
-    categoriesList: {
-      gap: 16,
-    },
-    categoryItem: {
-      gap: 12,
-      backgroundColor: '#F9FAFB',
-      padding: 16,
-      borderRadius: 12,
-    },
-    categoryHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    categoryInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-    },
-    categoryName: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#111827',
-    },
-    categoryAmount: {
-      fontSize: 16,
-      color: '#6B7280',
-    },
-    categoryInsights: {
-      marginTop: 12,
-      gap: 8,
-    },
-    categoryInsight: {
-      fontSize: 14,
-      color: '#6B7280',
-      lineHeight: 20,
-    },
-    progressBar: {
-      height: 8,
-      backgroundColor: '#E5E7EB',
-      borderRadius: 12,
-      overflow: 'hidden',
-    },
-    progressFill: {
-      height: '100%',
-      borderRadius: 12,
-    },
-    form: {
-      gap: 20,
-    },
-    formGroup: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#374151',
-      marginBottom: 4,
-    },
-    input: {
-      padding: 16,
-      fontSize: 16,
-      backgroundColor: '#F9FAFB',
-      borderWidth: 1,
-      borderColor: '#D1D5DB',
-      borderRadius: 12,
-    },
-    pickerContainer: {
-      borderWidth: 1,
-      borderColor: '#D1D5DB',
-      borderRadius: 12,
-      backgroundColor: '#F9FAFB',
-      overflow: 'hidden',
-    },
-    picker: {
-      height: 50,
-      width: '100%',
-    },
-    typeButtons: {
-      flexDirection: 'row',
-      gap: 12,
-    },
-    typeButton: {
-      flex: 1,
-      padding: 16,
-      borderRadius: 12,
-      backgroundColor: '#F3F4F6',
-      alignItems: 'center',
-    },
-    activeTypeButton: {
-      backgroundColor: '#4F46E5',
-    },
-    typeButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#6B7280',
-    },
-    activeTypeButtonText: {
-      color: '#FFFFFF',
-    },
-    addButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 16,
-      backgroundColor: '#4F46E5',
-      borderRadius: 12,
-      marginTop: 8,
-    },
-    addButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#FFFFFF',
-      marginLeft: 8,
-    },
-  })
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+  },
+  scrollContent: {
+    paddingBottom: 80, // Increased bottom padding for better scrolling experience
+  },
+  header: {
+    paddingVertical: 16,
+    paddingHorizontal: isLargeDevice ? 24 : 16,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    // marginTop is now set dynamically in the component
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: isLargeDevice ? 24 : 22,
+    fontWeight: 'bold',
+    marginLeft: 16,
+    color: '#111827',
+  },
+  cards: {
+    padding: isLargeDevice ? 24 : 16,
+    marginTop: 16,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: isLargeDevice ? 20 : 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    marginBottom: isLargeDevice ? 20 : 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: isLargeDevice ? 18 : 16,
+    color: '#6B7280',
+  },
+  cardAmount: {
+    fontSize: isLargeDevice ? 32 : 28,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  incomeText: {
+    color: '#22C55E',
+  },
+  expenseText: {
+    color: '#EF4444',
+  },
+  content: {
+    paddingHorizontal: isLargeDevice ? 24 : 16,
+    paddingTop: 8,
+  },
+  section: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: isLargeDevice ? 24 : 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: isLargeDevice ? 20 : 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#111827',
+  },
+  insightsList: {
+    gap: 12,
+  },
+  insightCard: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    alignItems: 'flex-start',
+  },
+  warningCard: {
+    backgroundColor: '#FEF2F2',
+  },
+  tipCard: {
+    backgroundColor: '#EFF6FF',
+  },
+  achievementCard: {
+    backgroundColor: '#F0FDF4',
+  },
+  insightContent: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  insightTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#111827',
+  },
+  insightDescription: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  transactionsList: {
+    gap: 12,
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+  },
+  transactionInfo: {
+    flex: 1,
+  },
+  transactionDescription: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  transactionMeta: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  transactionAmount: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    padding: 20,
+  },
+  categoriesList: {
+    gap: 16,
+  },
+  categoryItem: {
+    gap: 12,
+    backgroundColor: '#F9FAFB',
+    padding: 16,
+    borderRadius: 12,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  categoryInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  categoryName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  categoryAmount: {
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  categoryInsights: {
+    marginTop: 12,
+    gap: 8,
+  },
+  categoryInsight: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 12,
+  },
+  form: {
+    gap: 20,
+  },
+  formGroup: {
+    gap: 8,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 4,
+  },
+  input: {
+    padding: 16,
+    fontSize: 16,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    backgroundColor: '#F9FAFB',
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+  },
+  typeButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  typeButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+  },
+  activeTypeButton: {
+    backgroundColor: '#4F46E5',
+  },
+  typeButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  activeTypeButtonText: {
+    color: '#FFFFFF',
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: '#4F46E5',
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  addButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 8,
+  },
+})

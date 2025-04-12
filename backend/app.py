@@ -57,7 +57,7 @@ def parse_csv_for_transactions(filename):
     )
 
     # Return the top 10 transactions
-    return transactions[:10]
+    return transactions
 
 @app.route("/", methods=["GET"])
 def home():
