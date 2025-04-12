@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
   View,
@@ -81,15 +80,15 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
         },
       });
 
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log('Analysis results:', data);
       setAnalysis(data);
-      
+
       Alert.alert(
         "Analysis Complete",
         "Transactions processed successfully!",
@@ -109,7 +108,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('MainApp', { analysis});
+    navigation.navigate('MainApp', { analysis });
   };
 
   return (

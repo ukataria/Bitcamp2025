@@ -13,7 +13,6 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Get device dimensions to create responsive layouts
 const { width } = Dimensions.get('window');
@@ -142,29 +141,9 @@ const mockTransactions: Transaction[] = [
   },
 ];
 
-// Mock AI-generated insights
-const mockInsights: InsightType[] = [
-  {
-    title: 'Recurring Subscription Alert',
-    description: 'You have 3 overlapping streaming subscriptions totaling $35/month. Consider reviewing Netflix, Hulu, and Disney+ subscriptions.',
-    type: 'warning',
-    icon: 'alert-circle',
-  },
-  {
-    title: 'Smart Shopping Opportunity',
-    description: 'Your grocery spending peaks on weekends. Shopping on Wednesday evenings could save you ~15% based on historical prices.',
-    type: 'tip',
-    icon: 'lightbulb',
-  },
-  {
-    title: 'Savings Milestone',
-    description: "Great job! You've reduced dining out expenses by 20% compared to last month.",
-    type: 'achievement',
-    icon: 'trophy',
-  },
-];
 
-export default function MainAppScreen() {
+export default function MainAppScreen({ route }: { route: any }) {
+  const analysis = route.params?.analysis;
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [categories] = useState<Category[]>([
     {
@@ -224,6 +203,27 @@ export default function MainAppScreen() {
   // Use insets to get safe area values
   const insets = useSafeAreaInsets();
 
+
+  const analysisMapping = (item: any): InsightType => {
+    const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+      warning: 'alert-circle',
+      achievement: 'trophy',
+      tip: 'lightbulb',
+    };
+
+    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[item.type?.toLowerCase()] ?? 'info';
+
+    return {
+      title: item.title,
+      description: item.description,
+      type: item.type,
+      icon: icon,
+    };
+  }
+
+  // Generate Insights from Analysis
+  const insights: InsightType[] = analysis.actions.map((item: any) => analysisMapping(item));
+
   const addTransaction = () => {
     if (!newTransaction.description || !newTransaction.amount) return;
 
@@ -243,17 +243,6 @@ export default function MainAppScreen() {
       type: 'expense',
     });
   };
-
-
-  const loadAnalysis = async () => {
-    try {
-      const data = await AsyncStorage.getItem('analysisData');
-      return data ? JSON.parse(data) : null;
-    } catch (e) {
-      console.error('Loading error', e);
-    }
-  };
-
 
   const deleteTransaction = (id: string) => {
     setTransactions(transactions.filter(t => t.id !== id));
@@ -335,7 +324,7 @@ export default function MainAppScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>AI Insights</Text>
             <View style={styles.insightsList}>
-              {mockInsights.map((insight, index) => (
+              {insights.map((insight, index) => (
                 <View key={index}>
                   {renderInsightCard(insight)}
                 </View>
