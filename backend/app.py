@@ -83,23 +83,62 @@ def analyze_chunk():
     top_transactions = parse_csv_for_transactions(csvfilename)
 
 
-    # return jsonify({"actions" : [
-    #     {
-    #         "description": "Spending on Uber services (Trips and Eats) occurred 24 times between October and mid-December, totaling over $550. Reviewing this frequency could reveal savings opportunities.",
-    #         "title": "High Ride-Share & Delivery Frequency",
-    #         "type": "warning"
-    #     },
-    #     {
-    #         "description": "Small purchases from vending machines ('VEND 1800-766-8728') added up to over $30 across 16 transactions since August. Packing snacks could be more cost-effective.",
-    #         "title": "Vending Machine Habit",
-    #         "type": "tip"
-    #     },
-    #     {
-    #         "description": "Excellent work managing your credit! You consistently made large payments towards your balance, including $811.87 in September, $960.86 in October, and $857.84 in November.",
-    #         "title": "Consistent Payment Achievement",
-    #         "type": "achievement"
-    #     }
-    # ], "top_transactions" : top_transactions})
+#     return jsonify({
+#     "actions": {
+#         "categorical": [
+#             {
+#                 "points": [
+#                     "Your grocery spending has been relatively stable over the past few months.",
+#                     "Consider using coupons or loyalty programs to save on grocery purchases.",
+#                     "Your frequent grocery stores include UMD Dining Venues and Lidl."
+#                 ],
+#                 "type": "groceries"
+#             },
+#             {
+#                 "points": [
+#                     "Your recent travel spending includes flights with United Airlines and transportation using Smart Trip.",
+#                     "Evaluate the cost-effectiveness of different transportation options for your regular routes.",
+#                     "Consider booking flights in advance to take advantage of lower fares."
+#                 ],
+#                 "type": "travel"
+#             },
+#             {
+#                 "points": [
+#                     "You frequently dine at Taco Bell and Moge Tee College Park.",
+#                     "Consider exploring new dining options to diversify your food experiences.",
+#                     "Your average meal expense is slightly above the average for similar households."
+#                 ],
+#                 "type": "meals"
+#             },
+#             {
+#                 "points": [
+#                     "Your recent entertainment expenses include a visit to Wynwood Walls Tour and a Fliff transaction.",
+#                     "Consider setting a monthly entertainment budget to manage your spending in this category.",
+#                     "Explore free or low-cost entertainment options in your area."
+#                 ],
+#                 "type": "entertainment"
+#             }
+#         ],
+#         "general": [
+#             {
+#                 "description": "You've spent almost the exact same amount on Food & Drink for the last 3 months, indicating a high level of routine in your eating habits. Consider exploring new restaurants or cooking at home more often to diversify your spending and potentially save money.",
+#                 "title": "Consistent Spending Alert",
+#                 "type": "warning"
+#             },
+#             {
+#                 "description": "Categorizing all your transactions will allow you to track your budget more efficiently. If you have transactions that do not have a category, consider adding one.",
+#                 "title": "Budget Tracking Tip",
+#                 "type": "tip"
+#             },
+#             {
+#                 "description": "Congratulations! Your travel expenses are 30% lower this month compared to the previous month. Keep up the good work in managing your travel budget!",
+#                 "title": "Reduced Travel Expenses",
+#                 "type": "achievement"
+#             }
+#         ]
+#     },
+#     "top_transactions": []
+# })
 
     actions = gemini.analyzeCSV(csvfilename)
     gemini.initChat(csvfilename)

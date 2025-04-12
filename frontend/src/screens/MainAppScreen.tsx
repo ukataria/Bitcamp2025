@@ -145,48 +145,42 @@ const mockTransactions: Transaction[] = [
 export default function MainAppScreen({ route }: { route: any }) {
   const analysis = route.params?.analysis;
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [categories] = useState<Category[]>([
-    {
-      name: 'Food',
-      budget: 500,
-      icon: 'food',
-      insights: [
-        'Grocery spending is 15% higher than similar households',
-        'Most expensive shopping day: Saturdays',
-        "Frequent stores: Whole Foods (65%), Trader Joe's (25%)",
-      ],
-    },
-    {
-      name: 'Entertainment',
-      budget: 200,
-      icon: 'movie',
-      insights: [
-        'Subscription overlap detected',
-        'Peak entertainment spending: Weekends',
-        'Digital vs Physical: 80% digital purchases',
-      ],
-    },
-    {
-      name: 'Transport',
-      budget: 300,
-      icon: 'car',
-      insights: [
-        'Public transit could save $150/month',
-        'Peak ride-share times: Friday nights',
-        'Consider carpooling options',
-      ],
-    },
-    {
-      name: 'Housing',
-      budget: 2000,
-      icon: 'home',
-      insights: [
-        'Utilities 20% above average',
-        'Consider energy-efficient upgrades',
-        'Rent is within market range',
-      ],
-    },
-  ]);
+
+  const categoryMapping = (category: any): Category => {
+    const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+      meals: 'food',
+      groceries: 'cart-outline',
+      travel: 'airplane',
+      entertainment: 'movie'
+    };
+
+    const budgetMap: Record<string, number> = {
+      meals: 100,
+      groceries: 200,
+      travel: 150,
+      entertainment: 50
+    };
+
+    const nameMap: Record<string, string> = {
+      meals: 'Meals',
+      groceries: 'Groceries',
+      travel: 'Travel',
+      entertainment: 'Entertainment'
+    };
+
+    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[category.type?.toLowerCase()] ?? 'food';
+    const budget: number = budgetMap[category.type?.toLowerCase()] ?? 0;
+    const name: string = nameMap[category.type?.toLowerCase()] ?? 'None';
+
+    return {
+      name: name,
+      budget: budget,
+      icon: icon,
+      insights: category.points
+    };
+  }
+
+  const categories: Category[] = analysis.actions.categorical.map((category: any) => categoryMapping(category))
   const [newTransaction, setNewTransaction] = useState<{
     description: string;
     amount: string;
@@ -222,7 +216,7 @@ export default function MainAppScreen({ route }: { route: any }) {
   }
 
   // Generate Insights from Analysis
-  const insights: InsightType[] = analysis.actions.map((item: any) => analysisMapping(item));
+  const insights: InsightType[] = analysis.actions.general.map((item: any) => analysisMapping(item));
 
   const addTransaction = () => {
     if (!newTransaction.description || !newTransaction.amount) return;

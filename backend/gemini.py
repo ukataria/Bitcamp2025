@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import enum
 import time
 import os
+import ast
 
 
 google_api_key = os.environ["GOOGLE_API_KEY"]
@@ -16,10 +17,26 @@ class InsightClassification(enum.Enum):
     TIP = "tip"
     ACHIEVEMENT = "achievement"
 
-class ActionableReccomendations(BaseModel):
+
+class GeneralInsights(BaseModel):
   title: str
   description: str
   type: InsightClassification
+
+class CategoryInsightClassification(enum.Enum):
+    GROCERIES = "groceries"
+    TRAVEL = "travel"
+    MEALS = "meals"
+    ENTERTAINMENT = "entertainment"
+
+class CategoricalInsights(BaseModel):
+    type: CategoryInsightClassification
+    points: list[str]
+
+class CSVAnalysis(BaseModel):
+    general : list[GeneralInsights]
+    categorical : list[CategoricalInsights]
+
 
 class PaymentClassification(BaseModel):
   necessarySpend: float
@@ -27,24 +44,15 @@ class PaymentClassification(BaseModel):
   alternatives: str
 
 
-# Returns a jsonified gemini output to the video analysis, where we provide the filename within videos
-def responseToJSON(response):
-    actions: list[ActionableReccomendations] = response.parsed
-    reccomendations = []
-
-    for action in actions:
-        reccomendations.append({"title" : action.title, "description" : action.description, "type" : action.type.value})
-    return reccomendations
-
 def analyzeCSV(filename):
     prompt =  """ 
     I have a CSV file containing transaction data with the following columns:
     - Date (format: YYYY-MM-DD)
-    - Vendor (name/description of the merchant)
+    - Description (name/description of the merchant)
     - Amount (transaction amount in USD)
     - Category (e.g., Groceries, Dining, Entertainment, etc.)
 
-    Please analyze this data and generate a detailed report of spending insights. 
+    Please analyze this data and generate a detailed report of spending insights and categorical insights. 
     Spending insights are important notes about a user's spending habits. There are three types. Alerts: which are issues in the users spending habits, Tips: which are small changes but not that concerning, Achievements: which is progress that the user has made. 
 
     Here are three examples:
@@ -61,24 +69,59 @@ def analyzeCSV(filename):
     type: 'achievement',
 
     Your output should be eactly one achievement, one tip, and one warning.
+
+    Along with that, you should provide some categorical insights that provide a more high-level insight about specific category expenses. These are normally of the form of the category, which can be Groceries, Travel, Meals (Food & Drink), Entertainment. 
+    Here are some examples of categorical insights:
+    
+    category: 'Food',
+    points: [
+    'Grocery spending is 15 percent higher than similar households',
+    'Most expensive shopping day: Saturdays',
+    "Frequent stores: Whole Foods (65%), Trader Joe's (25%)",
+    ],
+
+    category: 'Entertainment',
+    points: [
+        'Subscription overlap detected',
+        'Peak entertainment spending: Weekends',
+        'Digital vs Physical: 80p percent digital purchases',
+      ],
+
+    category: 'Transport'
+    points: [
+        'Public transit could save $150/month',
+        'Peak ride-share times: Friday nights',
+        'Consider carpooling options',
+      ],
+    
+    category: 'Housing',
+    points: [
+        'Utilities 20 percent above average',
+        'Consider energy-efficient upgrades',
+        'Rent is within market range',
+      ]
+
+    Provide some categorical insights, but each one must be brand new. 
+
     """
 
     csv_file = client.files.upload(file=filename)
 
     print("Making LLM inference request...")
     # Set the model to Gemini Flash and Make the LLM request
-    response = client.models.generate_content(
-    model="gemini-2.5-pro-exp-03-25",
+    response : PaymentClassification = client.models.generate_content(
+    model="gemini-2.0-flash",
     contents=[csv_file, prompt],
     config={
         'response_mime_type': 'application/json',
-        'response_schema': list[ActionableReccomendations],
+        'response_schema': CSVAnalysis,
         }
-    )
+    ).parsed
 
     client.files.delete(name=csv_file.name)
+    text = response.model_dump_json()
 
-    return responseToJSON(response)
+    return ast.literal_eval(text)
 
 def initChat(filename):
     csv_file = client.files.upload(file=filename)
