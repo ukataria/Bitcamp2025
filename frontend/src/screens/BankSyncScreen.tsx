@@ -34,6 +34,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   const [syncComplete, setSyncComplete] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
 
   const handleBankSelect = (bankId: string) => {
     setSyncingBank(bankId);
@@ -77,23 +78,15 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
 
-      /*
-      const response = await fetch('http://127.0.0.1:5000', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      */
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
   
-      const analysis = await response.json();
-      console.log('Analysis results:', analysis);
+      const data = await response.json();
+      console.log('Analysis results:', data);
+      setAnalysis(data);
       
       Alert.alert(
         "Analysis Complete",
@@ -114,7 +107,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('MainApp');
+    navigation.navigate('MainApp', { analysis});
   };
 
   return (
