@@ -14,50 +14,47 @@ CORS(app)
 
 def parse_csv_for_transactions(filename):
     """
-    Parse the CSV file and extract transaction data.
-    Returns the top 10 most recent transactions based on Transaction Date.
+    Parse the CSV file with columns like:
+      Transaction Date, Post Date, Description, Category, Type, Amount
+    Returns the top 10 most recent transactions based on 'Transaction Date'.
     """
     transactions = []
     try:
         with open(filename, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                # Attempt to parse the "Transaction Date" (adjust the key name if necessary)
                 transaction_date_str = row.get("Transaction Date", "").strip()
                 if not transaction_date_str:
                     continue
+                
                 try:
-                    transaction_date = datetime.strptime(transaction_date_str, "%Y-%m-%d")
-                except Exception as e:
-                    # Skip rows with an invalid date
+                    transaction_date = datetime.strptime(transaction_date_str, "%m/%d/%Y")
+                except ValueError:
                     continue
-                    
-                # Parse debit and credit amounts
-                try:
-                    debit = float(row.get("Debit", "0").strip() or "0")
-                except Exception as e:
-                    debit = 0.0
 
+                amount_str = row.get("Amount", "").strip() or "0"
                 try:
-                    credit = float(row.get("Credit", "0").strip() or "0")
-                except Exception as e:
-                    credit = 0.0
+                    amount = float(amount_str)
+                except ValueError:
+                    amount = 0.0
 
                 transaction = {
                     "transactionDate": transaction_date_str,
-                    "postedDate": row.get("Posted Date", "").strip(),
-                    "cardNo": row.get("Card No.", "").strip(),
+                    "postDate": row.get("Post Date", "").strip(),
                     "description": row.get("Description", "").strip(),
                     "category": row.get("Category", "").strip(),
-                    "debit": debit,
-                    "credit": credit
+                    "type": row.get("Type", "").strip(),
+                    "amount": amount
                 }
                 transactions.append(transaction)
     except Exception as e:
         print(f"Error processing CSV file: {e}")
 
-    # Sort the transactions by transactionDate (most recent first)
-    transactions.sort(key=lambda x: datetime.strptime(x["transactionDate"], "%Y-%m-%d"), reverse=True)
+    # Sort transactions by transactionDate descending
+    transactions.sort(
+        key=lambda x: datetime.strptime(x["transactionDate"], "%m/%d/%Y"), 
+        reverse=True
+    )
 
     # Return the top 10 transactions
     return transactions[:10]
