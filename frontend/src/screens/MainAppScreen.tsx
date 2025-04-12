@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -44,583 +45,557 @@ type InsightType = {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
 
-// Mock data for insights
-const mockInsights: InsightType[] = [
+// Mock data for transactions (fallback if no imported transactions)
+const mockTransactions: Transaction[] = [
   {
-    title: 'Recurring Subscription Alert',
-    description: 'You have 3 overlapping streaming subscriptions totaling $35/month. Consider reviewing Netflix, Hulu, and Disney+ subscriptions.',
-    type: 'warning',
-    icon: 'alert-circle',
+    id: '1',
+    description: 'Monthly Groceries',
+    amount: 245.50,
+    category: 'Food',
+    date: '2024-04-12',
+    type: 'expense',
+    merchant: 'Whole Foods',
+    location: 'San Francisco, CA'
   },
   {
-    title: 'Smart Shopping Opportunity',
-    description: 'Your grocery spending peaks on weekends. Shopping on Wednesday evenings could save you ~15% based on historical prices.',
-    type: 'tip',
-    icon: 'lightbulb',
+    id: '2',
+    description: 'Netflix Subscription',
+    amount: 15.99,
+    category: 'Entertainment',
+    date: '2024-04-11',
+    type: 'expense',
+    merchant: 'Netflix'
   },
   {
-    title: 'Savings Milestone',
-    description: "Great job! You've reduced dining out expenses by 20% compared to last month.",
-    type: 'achievement',
-    icon: 'trophy',
+    id: '3',
+    description: 'Salary Deposit',
+    amount: 3500.00,
+    category: 'Income',
+    date: '2024-04-01',
+    type: 'income',
+    merchant: 'Tech Corp Inc'
+  },
+  {
+    id: '4',
+    description: 'Uber Eats Dinner',
+    amount: 25.99,
+    category: 'Food',
+    date: '2024-04-10',
+    type: 'expense',
+    merchant: 'Uber Eats',
+    location: 'San Francisco, CA'
+  },
+  {
+    id: '5',
+    description: 'Grocery Shopping',
+    amount: 85.47,
+    category: 'Food',
+    date: '2024-04-08',
+    type: 'expense',
+    merchant: 'Whole Foods',
+    location: 'San Francisco, CA'
+  },
+  {
+    id: '6',
+    description: 'Monthly Salary',
+    amount: 4250.00,
+    category: 'Income',
+    date: '2024-04-01',
+    type: 'income',
+    merchant: 'Tech Corp Inc'
+  },
+  {
+    id: '7',
+    description: 'Apartment Rent',
+    amount: 1800.00,
+    category: 'Housing',
+    date: '2024-04-01',
+    type: 'expense',
+  },
+  {
+    id: '8',
+    description: 'Uber Ride',
+    amount: 18.50,
+    category: 'Transport',
+    date: '2024-04-09',
+    type: 'expense',
+    merchant: 'Uber',
+    location: 'San Francisco, CA'
+  },
+  {
+    id: '9',
+    description: 'Starbucks Coffee',
+    amount: 5.75,
+    category: 'Food',
+    date: '2024-04-11',
+    type: 'expense',
+    merchant: 'Starbucks',
+    location: 'San Francisco, CA'
+  },
+  {
+    id: '10',
+    description: 'Amazon Purchase',
+    amount: 67.99,
+    category: 'Shopping',
+    date: '2024-04-07',
+    type: 'expense',
+    merchant: 'Amazon',
   },
 ];
 
-export default function MainAppScreen({ route }) {
+export default function MainAppScreen({ route }: { route?: any }) {
   // Get analysis data from route params if available
-  const analysisData = route?.params?.analysis;
+  const analysisData = route?.params?.analysis || {};
   const importedTransactions = analysisData?.top_transactions || [];
 
   // Transform imported transactions to match our Transaction type
-  const transformedImportedTransactions = importedTransactions.map((item, index) => ({
+  const transformedImportedTransactions = importedTransactions.map((item: any, index: number) => ({
     id: `imported-${index}`,
-    description: item.description,
-    amount: Math.abs(item.amount), // Use absolute value for display, negative values are expenses
+    description: item.description || "Unknown Transaction",
+    amount: Math.abs(parseFloat(item.amount) || 0), // Use absolute value for display, negative values are expenses
     category: item.category || 'Uncategorized',
-    date: item.transactionDate,
-    type: item.amount < 0 || item.type === 'Sale' ? 'expense' : 'income',
+    date: item.transactionDate || new Date().toISOString().split('T')[0],
+    type: parseFloat(item.amount) < 0 || item.type === 'Sale' ? 'expense' : 'income',
     merchant: item.description,
     postDate: item.postDate
   }));
-
-  // Mock data for demo purposes - fallback if no imported transactions
-  const mockTransactions: Transaction[] = [
-    {
-      id: '1',
-      description: 'Monthly Groceries',
-      amount: 245.50,
-      category: 'Food',
-      date: '2024-04-12',
-      type: 'expense',
-      merchant: 'Whole Foods',
-      location: 'San Francisco, CA'
-    },
-    {
-      id: '2',
-      description: 'Netflix Subscription',
-      amount: 15.99,
-      category: 'Entertainment',
-      date: '2024-04-11',
-      type: 'expense',
-      merchant: 'Netflix'
-    },
-    {
-      id: '3',
-      description: 'Salary Deposit',
-      amount: 3500.00,
-      category: 'Income',
-      date: '2024-04-01',
-      type: 'income',
-      merchant: 'Tech Corp Inc'
-    },
-    {
-      id: '4',
-      description: 'Uber Eats Dinner',
-      amount: 25.99,
-      category: 'Food',
-      date: '2025-04-10',
-      type: 'expense',
-      merchant: 'Uber Eats',
-      location: 'San Francisco, CA'
-    },
-    {
-      id: '5',
-      description: 'Grocery Shopping',
-      amount: 85.47,
-      category: 'Food',
-      date: '2025-04-08',
-      type: 'expense',
-      merchant: 'Whole Foods',
-      location: 'San Francisco, CA'
-    },
-    {
-      id: '6',
-      description: 'Monthly Salary',
-      amount: 4250.00,
-      category: 'Income',
-      date: '2025-04-01',
-      type: 'income',
-      merchant: 'Tech Corp Inc'
-    },
-    {
-      id: '7',
-      description: 'Apartment Rent',
-      amount: 1800.00,
-      category: 'Housing',
-      date: '2025-04-01',
-      type: 'expense',
-    },
-    {
-      id: '8',
-      description: 'Uber Ride',
-      amount: 18.50,
-      category: 'Transportation',
-      date: '2025-04-09',
-      type: 'expense',
-      merchant: 'Uber',
-      location: 'San Francisco, CA'
-    },
-    {
-      id: '9',
-      description: 'Starbucks Coffee',
-      amount: 5.75,
-      category: 'Food',
-      date: '2025-04-11',
-      type: 'expense',
-      merchant: 'Starbucks',
-      location: 'San Francisco, CA'
-    },
-    {
-      id: '10',
-      description: 'Amazon Purchase',
-      amount: 67.99,
-      category: 'Shopping',
-      date: '2025-04-07',
-      type: 'expense',
-      merchant: 'Amazon',
-    },
-  ];
 
   // Initialize transactions with imported data if available, otherwise use mock data
   const [transactions, setTransactions] = useState<Transaction[]>(
     transformedImportedTransactions.length > 0 ? transformedImportedTransactions : mockTransactions
   );
 
-  export default function MainAppScreen({ route }: { route: any }) {
-    const analysis = route.params?.analysis;
-    const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const categoryMapping = (category: any): Category => {
+    const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+      meals: 'food',
+      groceries: 'cart-outline',
+      travel: 'airplane',
+      entertainment: 'movie'
+    };
 
-    const categoryMapping = (category: any): Category => {
-      const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
-        meals: 'food',
-        groceries: 'cart-outline',
-        travel: 'airplane',
-        entertainment: 'movie'
-      };
+    const budgetMap: Record<string, number> = {
+      meals: 100,
+      groceries: 200,
+      travel: 150,
+      entertainment: 50
+    };
 
-      const budgetMap: Record<string, number> = {
-        meals: 100,
-        groceries: 200,
-        travel: 150,
-        entertainment: 50
-      };
+    const nameMap: Record<string, string> = {
+      meals: 'Meals',
+      groceries: 'Groceries',
+      travel: 'Travel',
+      entertainment: 'Entertainment'
+    };
 
-      const nameMap: Record<string, string> = {
-        meals: 'Meals',
-        groceries: 'Groceries',
-        travel: 'Travel',
-        entertainment: 'Entertainment'
-      };
+    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[category.type?.toLowerCase()] ?? 'food';
+    const budget: number = budgetMap[category.type?.toLowerCase()] ?? 0;
+    const name: string = nameMap[category.type?.toLowerCase()] ?? 'None';
 
-      const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[category.type?.toLowerCase()] ?? 'food';
-      const budget: number = budgetMap[category.type?.toLowerCase()] ?? 0;
-      const name: string = nameMap[category.type?.toLowerCase()] ?? 'None';
+    return {
+      name: name,
+      budget: budget,
+      icon: icon,
+      insights: category.points
+    };
+  }
 
-      return {
-        name: name,
-        budget: budget,
-        icon: icon,
-        insights: category.points
-      };
+  const categories: Category[] = analysisData.actions.categorical.map((category: any) => categoryMapping(category))
+  const [newTransaction, setNewTransaction] = useState<{
+    description: string;
+    amount: string;
+    category: string;
+    type: Transaction['type'];
+  }>({
+    description: '',
+    amount: '',
+    category: 'Food',
+    type: 'expense',
+  });
+  const [selectedCategory, setSelectedCategory] = useState<string>('Food');
+
+  // Use insets to get safe area values
+  const insets = useSafeAreaInsets();
+
+  const formatDate = (dateString: string) => {
+    try {
+      let date;
+      if (dateString.includes('/')) {
+        const [month, day, year] = dateString.split('/');
+        date = new Date(`${year}-${month}-${day}`);
+      } else {
+        date = new Date(dateString);
+      }
+
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
+
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString;
     }
+  };
 
-    const categories: Category[] = analysis.actions.categorical.map((category: any) => categoryMapping(category))
-    const [newTransaction, setNewTransaction] = useState<{
-      description: string;
-      amount: string;
-      category: string;
-      type: Transaction['type'];
-    }>({
+  const analysisMapping = (item: any): InsightType => {
+    const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+      warning: 'alert-circle',
+      achievement: 'trophy',
+      tip: 'lightbulb',
+    };
+
+    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[item.type?.toLowerCase()] ?? 'info';
+
+    return {
+      title: item.title,
+      description: item.description,
+      type: item.type,
+      icon: icon,
+    };
+  }
+
+  // Generate Insights from Analysis
+  const insights: InsightType[] = analysisData.actions.general.map((item: any) => analysisMapping(item));
+
+  const addTransaction = () => {
+    if (!newTransaction.description || !newTransaction.amount) return;
+
+    const transaction: Transaction = {
+      id: Date.now().toString(),
+      description: newTransaction.description,
+      amount: parseFloat(newTransaction.amount),
+      category: newTransaction.category,
+      date: new Date().toISOString().split('T')[0],
+      type: newTransaction.type,
+    };
+    setTransactions([transaction, ...transactions]);
+    setNewTransaction({
       description: '',
       amount: '',
       category: 'Food',
       type: 'expense',
     });
-    const [selectedCategory, setSelectedCategory] = useState<string>('Food');
+  };
 
-    // Use insets to get safe area values
-    const insets = useSafeAreaInsets();
+  const deleteTransaction = (id: string) => {
+    setTransactions(transactions.filter(t => t.id !== id));
+  };
 
-    const formatDate = (dateString: string) => {
-      try {
-        let date;
-        if (dateString.includes('/')) {
-          const [month, day, year] = dateString.split('/');
-          date = new Date(`${year}-${month}-${day}`);
-        } else {
-          date = new Date(dateString);
-        }
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
 
-        if (isNaN(date.getTime())) {
-          return dateString;
-        }
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
 
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        });
-      } catch (error) {
-        console.error('Error formatting date:', error);
-        return dateString;
-      }
-    };
+  const balance = totalIncome - totalExpenses;
 
-    const analysisMapping = (item: any): InsightType => {
-      const iconMap: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
-        warning: 'alert-circle',
-        achievement: 'trophy',
-        tip: 'lightbulb',
-      };
+  const renderInsightCard = (insight: InsightType) => (
+    <View style={[styles.insightCard, styles[`${insight.type}Card`]]}>
+      <MaterialCommunityIcons
+        name={insight.icon}
+        size={24}
+        color={insight.type === 'warning' ? '#DC2626' :
+          insight.type === 'tip' ? '#2563EB' : '#059669'}
+      />
+      <View style={styles.insightContent}>
+        <Text style={styles.insightTitle}>{insight.title}</Text>
+        <Text style={styles.insightDescription}>{insight.description}</Text>
+      </View>
+    </View>
+  );
 
-      const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[item.type?.toLowerCase()] ?? 'info';
-
-      return {
-        title: item.title,
-        description: item.description,
-        type: item.type,
-        icon: icon,
-      };
-    }
-
-    // Generate Insights from Analysis
-    const insights: InsightType[] = analysis.actions.general.map((item: any) => analysisMapping(item));
-
-    const addTransaction = () => {
-      if (!newTransaction.description || !newTransaction.amount) return;
-
-      const transaction: Transaction = {
-        id: Date.now().toString(),
-        description: newTransaction.description,
-        amount: parseFloat(newTransaction.amount),
-        category: newTransaction.category,
-        date: new Date().toISOString().split('T')[0],
-        type: newTransaction.type,
-      };
-      setTransactions([transaction, ...transactions]);
-      setNewTransaction({
-        description: '',
-        amount: '',
-        category: 'Food',
-        type: 'expense',
-      });
-    };
-
-    const deleteTransaction = (id: string) => {
-      setTransactions(transactions.filter(t => t.id !== id));
-    };
-
-    const totalIncome = transactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const totalExpenses = transactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const balance = totalIncome - totalExpenses;
-
-    const renderInsightCard = (insight: InsightType) => (
-      <View style={[styles.insightCard, styles[`${insight.type}Card`]]}>
-        <MaterialCommunityIcons
-          name={insight.icon}
-          size={24}
-          color={insight.type === 'warning' ? '#DC2626' :
-            insight.type === 'tip' ? '#2563EB' : '#059669'}
-        />
-        <View style={styles.insightContent}>
-          <Text style={styles.insightTitle}>{insight.title}</Text>
-          <Text style={styles.insightDescription}>{insight.description}</Text>
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
+      <View style={[
+        styles.header,
+        { marginTop: insets.top > 0 ? insets.top : Platform.OS === 'ios' ? 50 : StatusBar.currentHeight }
+      ]}>
+        <View style={styles.headerContent}>
+          <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
+          <Text style={styles.headerText}>Smart Finance</Text>
         </View>
       </View>
-    );
 
-    return (
-      <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-        <View style={[
-          styles.header,
-          { marginTop: insets.top > 0 ? insets.top : Platform.OS === 'ios' ? 50 : StatusBar.currentHeight }
-        ]}>
-          <View style={styles.headerContent}>
-            <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
-            <Text style={styles.headerText}>Smart Finance</Text>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.cards}>
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Balance</Text>
+              <MaterialCommunityIcons name="chart-pie" size={20} color="#4F46E5" />
+            </View>
+            <Text style={styles.cardAmount}>${balance.toFixed(2)}</Text>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Income</Text>
+              <MaterialCommunityIcons name="arrow-up" size={20} color="#22C55E" />
+            </View>
+            <Text style={[styles.cardAmount, styles.incomeText]}>
+              ${totalIncome.toFixed(2)}
+            </Text>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Expenses</Text>
+              <MaterialCommunityIcons name="arrow-down" size={20} color="#EF4444" />
+            </View>
+            <Text style={[styles.cardAmount, styles.expenseText]}>
+              ${totalExpenses.toFixed(2)}
+            </Text>
           </View>
         </View>
 
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.cards}>
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>Balance</Text>
-                <MaterialCommunityIcons name="chart-pie" size={20} color="#4F46E5" />
-              </View>
-              <Text style={styles.cardAmount}>${balance.toFixed(2)}</Text>
-            </View>
-
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>Income</Text>
-                <MaterialCommunityIcons name="arrow-up" size={20} color="#22C55E" />
-              </View>
-              <Text style={[styles.cardAmount, styles.incomeText]}>
-                ${totalIncome.toFixed(2)}
-              </Text>
-            </View>
-
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>Expenses</Text>
-                <MaterialCommunityIcons name="arrow-down" size={20} color="#EF4444" />
-              </View>
-              <Text style={[styles.cardAmount, styles.expenseText]}>
-                ${totalExpenses.toFixed(2)}
-              </Text>
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>AI Insights</Text>
+            <View style={styles.insightsList}>
+              {insights.map((insight, index) => (
+                <View key={index}>
+                  {renderInsightCard(insight)}
+                </View>
+              ))}
             </View>
           </View>
 
-          <View style={styles.content}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>AI Insights</Text>
-              <View style={styles.insightsList}>
-                {insights.map((insight, index) => (
-                  <View key={index}>
-                    {renderInsightCard(insight)}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recent Transactions</Text>
+            <View style={styles.transactionsList}>
+              {transactions.map(transaction => (
+                <View key={transaction.id} style={styles.transactionItem}>
+                  <View style={styles.transactionInfo}>
+                    <Text style={styles.transactionDescription}>
+                      {transaction.description}
+                    </Text>
+                    <Text style={styles.transactionMeta}>
+                      {transaction.category} • {formatDate(transaction.date)}
+                      {transaction.merchant && transaction.merchant !== transaction.description && ` • ${transaction.merchant}`}
+                      {transaction.postDate && ` • Posted: ${formatDate(transaction.postDate)}`}
+                    </Text>
                   </View>
-                ))}
-              </View>
+                  <View style={styles.transactionAmount}>
+                    <Text
+                      style={[
+                        styles.amount,
+                        transaction.type === 'income'
+                          ? styles.incomeText
+                          : styles.expenseText,
+                      ]}
+                    >
+                      {transaction.type === 'income' ? '+' : '-'}$
+                      {transaction.amount.toFixed(2)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => deleteTransaction(transaction.id)}
+                      style={styles.deleteButton}
+                    >
+                      <MaterialCommunityIcons
+                        name="trash-can"
+                        size={20}
+                        color="#9CA3AF"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+              {transactions.length === 0 && (
+                <Text style={styles.emptyText}>No transactions yet</Text>
+              )}
             </View>
+          </View>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recent Transactions</Text>
-              <View style={styles.transactionsList}>
-                {transactions.map(transaction => (
-                  <View key={transaction.id} style={styles.transactionItem}>
-                    <View style={styles.transactionInfo}>
-                      <Text style={styles.transactionDescription}>
-                        {transaction.description}
-                      </Text>
-                      <Text style={styles.transactionMeta}>
-                        {transaction.category} • {formatDate(transaction.date)}
-                        {transaction.merchant && transaction.merchant !== transaction.description && ` • ${transaction.merchant}`}
-                        {transaction.postDate && ` • Posted: ${formatDate(transaction.postDate)}`}
-                      </Text>
-                    </View>
-                    <View style={styles.transactionAmount}>
-                      <Text
-                        style={[
-                          styles.amount,
-                          transaction.type === 'income'
-                            ? styles.incomeText
-                            : styles.expenseText,
-                        ]}
-                      >
-                        {transaction.type === 'income' ? '+' : '-'}$
-                        {transaction.amount.toFixed(2)}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => deleteTransaction(transaction.id)}
-                        style={styles.deleteButton}
-                      >
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Category Insights</Text>
+            <View style={styles.categoriesList}>
+              {categories.map(category => {
+                const spent = transactions
+                  .filter(t => t.category === category.name && t.type === 'expense')
+                  .reduce((sum, t) => sum + t.amount, 0);
+                const percentage = (spent / category.budget) * 100;
+
+                return (
+                  <TouchableOpacity
+                    key={category.name}
+                    style={styles.categoryItem}
+                    onPress={() => setSelectedCategory(category.name)}
+                  >
+                    <View style={styles.categoryHeader}>
+                      <View style={styles.categoryInfo}>
                         <MaterialCommunityIcons
-                          name="trash-can"
+                          name={category.icon}
                           size={20}
-                          color="#9CA3AF"
+                          color="#4F46E5"
                         />
-                      </TouchableOpacity>
+                        <Text style={styles.categoryName}>{category.name}</Text>
+                      </View>
+                      <Text style={styles.categoryAmount}>
+                        ${spent.toFixed(2)} / ${category.budget}
+                      </Text>
                     </View>
-                  </View>
-                ))}
-                {transactions.length === 0 && (
-                  <Text style={styles.emptyText}>No transactions yet</Text>
-                )}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Category Insights</Text>
-              <View style={styles.categoriesList}>
-                {categories.map(category => {
-                  const spent = transactions
-                    .filter(t => t.category === category.name && t.type === 'expense')
-                    .reduce((sum, t) => sum + t.amount, 0);
-                  const percentage = (spent / category.budget) * 100;
-
-                  return (
-                    <TouchableOpacity
-                      key={category.name}
-                      style={styles.categoryItem}
-                      onPress={() => setSelectedCategory(category.name)}
-                    >
-                      <View style={styles.categoryHeader}>
-                        <View style={styles.categoryInfo}>
-                          <MaterialCommunityIcons
-                            name={category.icon}
-                            size={20}
-                            color="#4F46E5"
-                          />
-                          <Text style={styles.categoryName}>{category.name}</Text>
-                        </View>
-                        <Text style={styles.categoryAmount}>
-                          ${spent.toFixed(2)} / ${category.budget}
-                        </Text>
-                      </View>
-                      <View style={styles.progressBar}>
-                        <View
-                          style={[
-                            styles.progressFill,
-                            {
-                              width: `${Math.min(percentage, 100)}%`,
-                              backgroundColor:
-                                percentage > 100
-                                  ? '#DC2626'
-                                  : percentage > 75
-                                    ? '#D97706'
-                                    : '#059669',
-                            },
-                          ]}
-                        />
-                      </View>
-                      {selectedCategory === category.name && category.insights && (
-                        <View style={styles.categoryInsights}>
-                          {category.insights.map((insight, index) => (
-                            <Text key={index} style={styles.categoryInsight}>
-                              • {insight}
-                            </Text>
-                          ))}
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Add Transaction</Text>
-              <View style={styles.form}>
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Description</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={newTransaction.description}
-                    onChangeText={text =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        description: text,
-                      })
-                    }
-                    placeholder="Enter description"
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Amount</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={newTransaction.amount}
-                    onChangeText={text =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        amount: text,
-                      })
-                    }
-                    placeholder="Enter amount"
-                    keyboardType="decimal-pad"
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Category</Text>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={newTransaction.category}
-                      onValueChange={(value: string) =>
-                        setNewTransaction({
-                          ...newTransaction,
-                          category: value,
-                        })
-                      }
-                      style={styles.picker}
-                    >
-                      {categories.map(category => (
-                        <Picker.Item
-                          key={category.name}
-                          label={category.name}
-                          value={category.name}
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Type</Text>
-                  <View style={styles.typeButtons}>
-                    <TouchableOpacity
-                      style={[
-                        styles.typeButton,
-                        newTransaction.type === 'expense' && styles.activeTypeButton,
-                      ]}
-                      onPress={() =>
-                        setNewTransaction({
-                          ...newTransaction,
-                          type: 'expense',
-                        })
-                      }
-                    >
-                      <Text
+                    <View style={styles.progressBar}>
+                      <View
                         style={[
-                          styles.typeButtonText,
-                          newTransaction.type === 'expense' &&
-                          styles.activeTypeButtonText,
+                          styles.progressFill,
+                          {
+                            width: `${Math.min(percentage, 100)}%`,
+                            backgroundColor:
+                              percentage > 100
+                                ? '#DC2626'
+                                : percentage > 75
+                                  ? '#D97706'
+                                  : '#059669',
+                          },
                         ]}
-                      >
-                        Expense
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.typeButton,
-                        newTransaction.type === 'income' && styles.activeTypeButton,
-                      ]}
-                      onPress={() =>
-                        setNewTransaction({
-                          ...newTransaction,
-                          type: 'income',
-                        })
-                      }
-                    >
-                      <Text
-                        style={[
-                          styles.typeButtonText,
-                          newTransaction.type === 'income' &&
-                          styles.activeTypeButtonText,
-                        ]}
-                      >
-                        Income
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.addButton}
-                  onPress={addTransaction}
-                >
-                  <MaterialCommunityIcons name="plus" size={20} color="#FFFFFF" />
-                  <Text style={styles.addButtonText}>Add Transaction</Text>
-                </TouchableOpacity>
-              </View>
+                      />
+                    </View>
+                    {selectedCategory === category.name && category.insights && (
+                      <View style={styles.categoryInsights}>
+                        {category.insights.map((insight, index) => (
+                          <Text key={index} style={styles.categoryInsight}>
+                            • {insight}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Add Transaction</Text>
+            <View style={styles.form}>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Description</Text>
+                <TextInput
+                  style={styles.input}
+                  value={newTransaction.description}
+                  onChangeText={text =>
+                    setNewTransaction({
+                      ...newTransaction,
+                      description: text,
+                    })
+                  }
+                  placeholder="Enter description"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Amount</Text>
+                <TextInput
+                  style={styles.input}
+                  value={newTransaction.amount}
+                  onChangeText={text =>
+                    setNewTransaction({
+                      ...newTransaction,
+                      amount: text,
+                    })
+                  }
+                  placeholder="Enter amount"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Category</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={newTransaction.category}
+                    onValueChange={(value: string) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        category: value,
+                      })
+                    }
+                    style={styles.picker}
+                  >
+                    {categories.map(category => (
+                      <Picker.Item
+                        key={category.name}
+                        label={category.name}
+                        value={category.name}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Type</Text>
+                <View style={styles.typeButtons}>
+                  <TouchableOpacity
+                    style={[
+                      styles.typeButton,
+                      newTransaction.type === 'expense' && styles.activeTypeButton,
+                    ]}
+                    onPress={() =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        type: 'expense',
+                      })
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.typeButtonText,
+                        newTransaction.type === 'expense' &&
+                        styles.activeTypeButtonText,
+                      ]}
+                    >
+                      Expense
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.typeButton,
+                      newTransaction.type === 'income' && styles.activeTypeButton,
+                    ]}
+                    onPress={() =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        type: 'income',
+                      })
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.typeButtonText,
+                        newTransaction.type === 'income' &&
+                        styles.activeTypeButtonText,
+                      ]}
+                    >
+                      Income
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={addTransaction}
+              >
+                <MaterialCommunityIcons name="plus" size={20} color="#FFFFFF" />
+                <Text style={styles.addButtonText}>Add Transaction</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
 
   const styles = StyleSheet.create({
     safeArea: {
@@ -901,4 +876,4 @@ export default function MainAppScreen({ route }) {
       color: '#FFFFFF',
       marginLeft: 8,
     },
-  });
+  })

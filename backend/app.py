@@ -76,6 +76,8 @@ def analyze_chunk():
 
     print(f"Received frame: {file.filename}")
 
+    actions = gemini.analyzeCSV(csvfilename)
+    gemini.initChat(csvfilename)
 
     top_transactions = parse_csv_for_transactions(csvfilename)
 
@@ -137,11 +139,11 @@ def analyze_chunk():
 #     "top_transactions": []
 # })
 
-    actions = gemini.analyzeCSV(csvfilename)
-    gemini.initChat(csvfilename)
-
     os.remove(csvfilename)
-    return jsonify({"actions" : actions, "top_transactions" : top_transactions})
+    return jsonify({
+        "actions": actions,
+        "top_transactions": top_transactions
+    })
 
 @app.route("/new_transaction", methods=["POST"])
 def new_transaction():
