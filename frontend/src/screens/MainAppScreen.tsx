@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ type Transaction = {
   type: 'income' | 'expense';
   merchant?: string;
   location?: string;
+  postDate?: string;
 };
 
 type Category = {
@@ -43,105 +44,7 @@ type InsightType = {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
 
-// Mock data for demo purposes
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    description: 'Monthly Groceries',
-    amount: 245.50,
-    category: 'Food',
-    date: '2024-04-12',
-    type: 'expense',
-    merchant: 'Whole Foods',
-    location: 'San Francisco, CA'
-  },
-  {
-    id: '2',
-    description: 'Netflix Subscription',
-    amount: 15.99,
-    category: 'Entertainment',
-    date: '2024-04-11',
-    type: 'expense',
-    merchant: 'Netflix'
-  },
-  {
-    id: '3',
-    description: 'Salary Deposit',
-    amount: 3500.00,
-    category: 'Income',
-    date: '2024-04-01',
-    type: 'income',
-    merchant: 'Tech Corp Inc'
-  },
-  {
-    id: '4',
-    description: 'Uber Eats Dinner',
-    amount: 25.99,
-    category: 'Food',
-    date: '2025-04-10',
-    type: 'expense',
-    merchant: 'Uber Eats',
-    location: 'San Francisco, CA'
-  },
-  {
-    id: '5',
-    description: 'Grocery Shopping',
-    amount: 85.47,
-    category: 'Food',
-    date: '2025-04-08',
-    type: 'expense',
-    merchant: 'Whole Foods',
-    location: 'San Francisco, CA'
-  },
-  {
-    id: '6',
-    description: 'Monthly Salary',
-    amount: 4250.00,
-    category: 'Income',
-    date: '2025-04-01',
-    type: 'income',
-    merchant: 'Tech Corp Inc'
-  },
-  {
-    id: '7',
-    description: 'Apartment Rent',
-    amount: 1800.00,
-    category: 'Housing',
-    date: '2025-04-01',
-    type: 'expense',
-  },
-  {
-    id: '8',
-    description: 'Uber Ride',
-    amount: 18.50,
-    category: 'Transportation',
-    date: '2025-04-09',
-    type: 'expense',
-    merchant: 'Uber',
-    location: 'San Francisco, CA'
-  },
-  {
-    id: '9',
-    description: 'Starbucks Coffee',
-    amount: 5.75,
-    category: 'Food',
-    date: '2025-04-11',
-    type: 'expense',
-    merchant: 'Starbucks',
-    location: 'San Francisco, CA'
-  },
-  {
-    id: '10',
-    description: 'Amazon Purchase',
-    amount: 67.99,
-    category: 'Shopping',
-    date: '2025-04-07',
-    type: 'expense',
-    merchant: 'Amazon',
-  },
-];
-
-// Mock AI-generated insights
+// Mock data for insights
 const mockInsights: InsightType[] = [
   {
     title: 'Recurring Subscription Alert',
@@ -163,8 +66,126 @@ const mockInsights: InsightType[] = [
   },
 ];
 
-export default function MainAppScreen() {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+export default function MainAppScreen({ route }) {
+  // Get analysis data from route params if available
+  const analysisData = route?.params?.analysis;
+  const importedTransactions = analysisData?.top_transactions || [];
+  
+  // Transform imported transactions to match our Transaction type
+  const transformedImportedTransactions = importedTransactions.map((item, index) => ({
+    id: `imported-${index}`,
+    description: item.description,
+    amount: Math.abs(item.amount), // Use absolute value for display, negative values are expenses
+    category: item.category || 'Uncategorized',
+    date: item.transactionDate,
+    type: item.amount < 0 || item.type === 'Sale' ? 'expense' : 'income',
+    merchant: item.description,
+    postDate: item.postDate
+  }));
+
+  // Mock data for demo purposes - fallback if no imported transactions
+  const mockTransactions: Transaction[] = [
+    {
+      id: '1',
+      description: 'Monthly Groceries',
+      amount: 245.50,
+      category: 'Food',
+      date: '2024-04-12',
+      type: 'expense',
+      merchant: 'Whole Foods',
+      location: 'San Francisco, CA'
+    },
+    {
+      id: '2',
+      description: 'Netflix Subscription',
+      amount: 15.99,
+      category: 'Entertainment',
+      date: '2024-04-11',
+      type: 'expense',
+      merchant: 'Netflix'
+    },
+    {
+      id: '3',
+      description: 'Salary Deposit',
+      amount: 3500.00,
+      category: 'Income',
+      date: '2024-04-01',
+      type: 'income',
+      merchant: 'Tech Corp Inc'
+    },
+    {
+      id: '4',
+      description: 'Uber Eats Dinner',
+      amount: 25.99,
+      category: 'Food',
+      date: '2025-04-10',
+      type: 'expense',
+      merchant: 'Uber Eats',
+      location: 'San Francisco, CA'
+    },
+    {
+      id: '5',
+      description: 'Grocery Shopping',
+      amount: 85.47,
+      category: 'Food',
+      date: '2025-04-08',
+      type: 'expense',
+      merchant: 'Whole Foods',
+      location: 'San Francisco, CA'
+    },
+    {
+      id: '6',
+      description: 'Monthly Salary',
+      amount: 4250.00,
+      category: 'Income',
+      date: '2025-04-01',
+      type: 'income',
+      merchant: 'Tech Corp Inc'
+    },
+    {
+      id: '7',
+      description: 'Apartment Rent',
+      amount: 1800.00,
+      category: 'Housing',
+      date: '2025-04-01',
+      type: 'expense',
+    },
+    {
+      id: '8',
+      description: 'Uber Ride',
+      amount: 18.50,
+      category: 'Transportation',
+      date: '2025-04-09',
+      type: 'expense',
+      merchant: 'Uber',
+      location: 'San Francisco, CA'
+    },
+    {
+      id: '9',
+      description: 'Starbucks Coffee',
+      amount: 5.75,
+      category: 'Food',
+      date: '2025-04-11',
+      type: 'expense',
+      merchant: 'Starbucks',
+      location: 'San Francisco, CA'
+    },
+    {
+      id: '10',
+      description: 'Amazon Purchase',
+      amount: 67.99,
+      category: 'Shopping',
+      date: '2025-04-07',
+      type: 'expense',
+      merchant: 'Amazon',
+    },
+  ];
+
+  // Initialize transactions with imported data if available, otherwise use mock data
+  const [transactions, setTransactions] = useState<Transaction[]>(
+    transformedImportedTransactions.length > 0 ? transformedImportedTransactions : mockTransactions
+  );
+
   const [categories] = useState<Category[]>([
     { 
       name: 'Food', 
@@ -207,6 +228,7 @@ export default function MainAppScreen() {
       ],
     },
   ]);
+  
   const [newTransaction, setNewTransaction] = useState<{
     description: string;
     amount: string;
@@ -222,6 +244,31 @@ export default function MainAppScreen() {
 
   // Use insets to get safe area values
   const insets = useSafeAreaInsets();
+
+  const formatDate = (dateString: string) => {
+    try {
+      let date;
+      if (dateString.includes('/')) {
+        const [month, day, year] = dateString.split('/');
+        date = new Date(`${year}-${month}-${day}`);
+      } else {
+        date = new Date(dateString);
+      }
+      
+      if (isNaN(date.getTime())) {
+        return dateString; 
+      }
+      
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; 
+    }
+  };
 
   const addTransaction = () => {
     if (!newTransaction.description || !newTransaction.amount) return;
@@ -341,8 +388,9 @@ export default function MainAppScreen() {
                       {transaction.description}
                     </Text>
                     <Text style={styles.transactionMeta}>
-                      {transaction.category} • {transaction.date}
-                      {transaction.merchant && ` • ${transaction.merchant}`}
+                      {transaction.category} • {formatDate(transaction.date)}
+                      {transaction.merchant && transaction.merchant !== transaction.description && ` • ${transaction.merchant}`}
+                      {transaction.postDate && ` • Posted: ${formatDate(transaction.postDate)}`}
                     </Text>
                   </View>
                   <View style={styles.transactionAmount}>

@@ -107,7 +107,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('MainApp', { analysis});
+    navigation.navigate('MainApp', {analysis});
   };
 
   return (
