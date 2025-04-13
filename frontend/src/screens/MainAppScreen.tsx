@@ -524,7 +524,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       >
         <View style={styles.headerContent}>
           <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
-          <Text style={styles.headerText}>Smart Finance</Text>
+          <Text style={styles.headerText}>Capital Credibility</Text>
         </View>
       </View>
 
