@@ -1,20 +1,55 @@
 # CapitalClarity
 
-Created for Bitcamp 2025 (https://bit.camp), CapitalClarity is an innovative React Native application designed to help users improve their financial habits by leveraging artificial intelligence. With the growing complexity of managing personal finances and maintaining disciplined spending, we recognized the need for a tool that not only tracks transactions but also proactively guides users toward better financial decisions. CapitalClarity provides real-time personalized insights, tips, warnings, and achievements based on the user's transaction history.
+Created for Bitcamp 2025 (https://bit.camp), CapitalClarity is a **Gemini AI-powered React Native app** designed to help users take control of their finances. By analyzing your spending history, the app delivers **real-time, personalized financial insights** that empower you to make smarter, budget-conscious decisions. Think of it as your **intelligent financial coach**, always learning and guiding you.
 
 ## Inspiration
 
-Our motivation for CapitalClarity arose from the observation that many individuals struggle to keep their finances under control, often due to a lack of real-time feedback and actionable insights. We aimed to bridge this gap by developing an app capable of analyzing financial data and providing immediate, tailored advice to foster healthier spending habits.
+Many people—especially students—struggle with managing personal finances. The issue isn’t always about income, but rather a lack of awareness and context around spending.
+
+> “I check my bank app and just think… *where did all my money go?*”
+
+In fact:
+- **42% of college students carry credit card debt**, often unaware of how daily habits accumulate.
+- Small, frequent purchases tend to slip under the radar, making budgeting difficult.
+- Existing financial tools often feel disconnected or require too much manual input.
 
 ## Features
 
-- Transaction Analysis: Users upload CSV files containing their transaction histories, which are immediately analyzed using Google's Gemini AI.
+CapitalClarity is more than just a tracker — it’s your intelligent financial coach. Below are the key features that set it apart:
 
-- Real-Time Financial Insights: The app generates actionable insights categorized as warnings, tips, or achievements, helping users quickly understand their financial behaviors.
+---
 
-- Interactive Feedback Loop: Users can rate the necessity of each transaction, providing the AI with valuable feedback to refine future suggestions.
+### 1. Transaction Analysis  
+| What it does | Why it matters |
+|--------------|----------------|
+Users can upload CSV files containing their bank transaction history. These are processed using Google's Gemini AI to detect patterns, behaviors, and key spending markers — all within seconds.|It transforms raw financial data into structured insights without requiring users to manually categorize or analyze anything.|
+---
 
-- Personalized Categories: The app categorizes expenditures into intuitive groups such as groceries, meals, travel, and entertainment, each with specific budgeting insights.
+### 2. Real-Time Financial Insights  
+
+| What it does | Why it matters |
+|--------------|----------------|
+For each transaction, the app generates categorized insights categorized into **tips**, **achievements**, **warnings** | It transforms raw financial data into structured insights without requiring users to manually categorize or analyze anything.|Users receive instant, personalized feedback that helps them understand the *why* behind their spending habits.|
+
+---
+
+### 3. Interactive Feedback Loop  
+| What it does | Why it matters |
+|--------------|----------------|
+Users can rate the **necessity** of individual transactions. This feedback is sent to the backend AI model to improve the accuracy of future suggestions. | The system becomes smarter over time, learning from real user intent — not just numbers.|
+
+
+---
+
+### 4. Personalized Spending Categories  
+| What it does | Why it matters |
+|--------------|----------------|
+CapitalClarity automatically groups transactions into intuitive categories such as `Groceries, Meals & Dining, Travel, Entertainment, Subscriptions`. |This lets users track trends and identify problematic areas quickly without sorting through endless statements.
+
+---
+
+Together, these features help users move from reactive spending to proactive financial decision-making — all powered by AI and wrapped in a user-friendly experience.
+
 
 # Setup
 
@@ -26,14 +61,14 @@ The backend of CapitalClarity is built using Python and Flask, handling transact
 
 First, set up a virtual environment using:
 
-```
+``` bash
 python -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
 ```
 
 Run the Flask server:
 
-```
+``` bash
 cd backend
 pip install -r requirements.txt
 python app.py
