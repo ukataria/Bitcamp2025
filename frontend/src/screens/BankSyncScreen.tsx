@@ -1,4 +1,7 @@
+const serverUrl = "http://10.20.59.57:5001/";
+
 import React, { useState } from 'react';
+
 
 import {
   View,
@@ -72,7 +75,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
 
       // Send to backend
 
-      const response = await fetch('http://10.174.238.213:5001/analyze_spending', {
+      const response = await fetch(serverUrl + 'analyze_spending', {
         method: 'POST',
         body: formData,
         headers: {
@@ -108,7 +111,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('MainApp', {analysis });
+    navigation.navigate('MainApp', { analysis });
   };
 
   return (

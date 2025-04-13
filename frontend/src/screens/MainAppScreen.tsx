@@ -1,3 +1,5 @@
+const serverUrl = "http://10.20.59.57:5001/";
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -300,7 +302,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     }
   ];
 
-  const addTransaction = () => {
+  const addTransaction = async () => {
     if (!newTransaction.description || !newTransaction.amount) return;
 
     const transaction: Transaction = {
@@ -318,6 +320,33 @@ export default function MainAppScreen({ route }: { route?: any }) {
       category: 'Food',
       type: 'expense',
     });
+
+    const formData = new FormData();
+    formData.append('description', newTransaction.description);
+    formData.append('category', "food");
+    formData.append('amount', newTransaction.amount);
+
+    var transactionAnalysis: any = null;
+
+    await fetch(serverUrl + 'new_transaction', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(data => { console.log(data); transactionAnalysis = data; })
+      .catch(error => console.error('Error:', error));
+    if (transactionAnalysis.necessarySpend < 0.4) {
+      Alert.alert(
+        "Potential Saving Opportunity",
+        transactionAnalysis.reason,
+        [{ text: "OK" }]
+      );
+    }
+    else {
+      console.log("Transaction Passed")
+      console.log(transactionAnalysis.necessarySpend)
+    }
+
   };
 
   const deleteTransaction = (id: string) => {
