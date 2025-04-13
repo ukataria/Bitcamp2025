@@ -1,6 +1,6 @@
 # CapitalClarity
 
-Created for Bitcamp 2025 (https://bit.camp), CapitalClarity is an innovative React Native application designed to help users improve their financial habits by leveraging artificial intelligence. With the growing complexity of managing personal finances and maintaining disciplined spending, we recognized the need for a tool that not only tracks transactions but also proactively guides users toward better financial decisions. Smart Finance provides real-time personalized insights, tips, warnings, and achievements based on the user's transaction history.
+Created for Bitcamp 2025 (https://bit.camp), CapitalClarity is an innovative React Native application designed to help users improve their financial habits by leveraging artificial intelligence. With the growing complexity of managing personal finances and maintaining disciplined spending, we recognized the need for a tool that not only tracks transactions but also proactively guides users toward better financial decisions. CapitalClarity provides real-time personalized insights, tips, warnings, and achievements based on the user's transaction history.
 
 ## Inspiration
 
@@ -20,7 +20,7 @@ Our motivation for CapitalClarity arose from the observation that many individua
 
 ## Backend
 
-The backend of Smart Finance is built using Python and Flask, handling transaction analysis and AI integration.
+The backend of CapitalClarity is built using Python and Flask, handling transaction analysis and AI integration.
 
 **Requirements:** Python >= 3.10.
 
