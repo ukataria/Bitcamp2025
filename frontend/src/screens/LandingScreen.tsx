@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +25,7 @@ const LandingScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.logoContainer}>
           <MaterialCommunityIcons name="wallet" size={80} color="#007AFF" />
           <Text style={styles.title}>SpendWise</Text>
@@ -46,7 +47,7 @@ const LandingScreen = () => {
             <Text style={[styles.buttonText, styles.signupButtonText]}>Sign Up</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     justifyContent: 'space-between',
   },
@@ -67,6 +68,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: 60,
   },
   title: {
     fontSize: 32,
@@ -83,6 +85,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     gap: 15,
+    marginBottom: 40,
   },
   button: {
     width: '100%',
@@ -108,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LandingScreen; 
+export default LandingScreen;
