@@ -10,10 +10,15 @@ import {
   StatusBar,
   Dimensions,
   Alert,
+  LogBox
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
+import DropDownPicker from 'react-native-dropdown-picker';
+
+LogBox.ignoreLogs([
+  'VirtualizedLists should never be nested',
+]);
 
 // Get device dimensions to create responsive layouts
 const { width } = Dimensions.get('window');
@@ -199,7 +204,21 @@ export default function MainAppScreen({ route }: { route?: any }) {
     };
   }
 
-  const categories: Category[] = analysisData.actions.categorical.map((category: any) => categoryMapping(category))
+  const categories: Category[] = analysisData.actions?.categorical?.map((category: any) => categoryMapping(category)) || [
+    { name: 'Food', budget: 300, icon: 'food' },
+    { name: 'Entertainment', budget: 150, icon: 'movie' },
+    { name: 'Transport', budget: 200, icon: 'car' },
+    { name: 'Housing', budget: 2000, icon: 'home' },
+    { name: 'Shopping', budget: 300, icon: 'cart' },
+    { name: 'Income', budget: 0, icon: 'cash' },
+  ];
+  
+  // Create dropdown items from categories
+  const categoryItems = categories.map(category => ({
+    label: category.name,
+    value: category.name,
+  }));
+
   const [newTransaction, setNewTransaction] = useState<{
     description: string;
     amount: string;
@@ -211,6 +230,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     category: 'Food',
     type: 'expense',
   });
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('Food');
 
   // Use insets to get safe area values
@@ -259,7 +279,26 @@ export default function MainAppScreen({ route }: { route?: any }) {
   }
 
   // Generate Insights from Analysis
-  const insights: InsightType[] = analysisData.actions.general.map((item: any) => analysisMapping(item));
+  const insights: InsightType[] = analysisData.actions?.general?.map((item: any) => analysisMapping(item)) || [
+    {
+      title: "High Spending on Food",
+      description: "You've spent more than usual on dining out this month. Consider cooking at home more often.",
+      type: "warning",
+      icon: "alert-circle"
+    },
+    {
+      title: "Transport Savings",
+      description: "You're spending less on transport compared to last month. Great job!",
+      type: "achievement",
+      icon: "trophy"
+    },
+    {
+      title: "Budget Planning",
+      description: "Try setting specific budget goals for each category to track your spending better.",
+      type: "tip",
+      icon: "lightbulb"
+    }
+  ];
 
   const addTransaction = () => {
     if (!newTransaction.description || !newTransaction.amount) return;
@@ -372,7 +411,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.transactionsList}>
-              {transactions.splice(0, 10).map(transaction => (
+              {transactions.slice(0, 10).map(transaction => (
                 <View key={transaction.id} style={styles.transactionItem}>
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionDescription}>
@@ -510,25 +549,30 @@ export default function MainAppScreen({ route }: { route?: any }) {
 
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Category</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={newTransaction.category}
-                    onValueChange={(value: string) =>
+                <View style={styles.dropdownContainer}>
+                  <DropDownPicker
+                    open={dropdownOpen}
+                    value={newTransaction.category}
+                    items={categoryItems}
+                    setOpen={setDropdownOpen}
+                    setValue={(callback) => {
+                      const value = typeof callback === 'function' 
+                        ? callback(newTransaction.category) 
+                        : callback;
+                      
                       setNewTransaction({
                         ...newTransaction,
-                        category: value,
-                      })
-                    }
-                    style={styles.picker}
-                  >
-                    {categories.map(category => (
-                      <Picker.Item
-                        key={category.name}
-                        label={category.name}
-                        value={category.name}
-                      />
-                    ))}
-                  </Picker>
+                        category: value
+                      });
+                    }}
+                    setItems={() => {}} // Not modifying items
+                    style={styles.dropdown}
+                    dropDownContainerStyle={styles.dropdownList}
+                    textStyle={styles.dropdownText}
+                    placeholderStyle={styles.dropdownPlaceholder}
+                    zIndex={3000}
+                    zIndexInverse={1000}
+                  />
                 </View>
               </View>
 
@@ -828,16 +872,29 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
     borderRadius: 12,
   },
-  pickerContainer: {
-    borderWidth: 1,
+  dropdownContainer: {
+    marginBottom: 20, 
+  },
+  dropdown: {
+    backgroundColor: '#F9FAFB',
     borderColor: '#D1D5DB',
     borderRadius: 12,
-    backgroundColor: '#F9FAFB',
-    overflow: 'hidden',
+    borderWidth: 1,
+    minHeight: 50,
   },
-  picker: {
-    height: 50,
-    width: '100%',
+  dropdownList: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#111827',
+    padding: 8,
+  },
+  dropdownPlaceholder: {
+    color: '#9CA3AF',
+    fontSize: 16,
   },
   typeButtons: {
     flexDirection: 'row',
@@ -876,4 +933,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginLeft: 8,
   },
-})
+});
