@@ -207,10 +207,10 @@ export default function MainAppScreen({ route }: { route?: any }) {
     };
 
     const budgetMap: Record<string, number> = {
-      meals: 100,
-      groceries: 200,
-      travel: 150,
-      entertainment: 50
+      meals: 400,
+      groceries: 300,
+      travel: 600,
+      entertainment: 125
     };
 
     const nameMap: Record<string, string> = {
