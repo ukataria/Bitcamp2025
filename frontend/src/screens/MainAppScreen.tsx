@@ -1,4 +1,4 @@
-const serverUrl = "http://10.165.9.169:5001";
+const serverUrl = "http://172.20.10.5:5001/";
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -22,7 +22,7 @@ LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
 ]);
 import { Picker } from '@react-native-picker/picker';
-import { Modal } from 'react-native-modal';
+import Modal from 'react-native-modal';
 
 // Get device dimensions to create responsive layouts
 const { width } = Dimensions.get('window');
