@@ -29,7 +29,7 @@ const LandingScreen = () => {
         <View style={styles.logoContainer}>
           <MaterialCommunityIcons name="wallet" size={160} color="#007AFF" />
           <Text style={styles.title}>CapitalClarity</Text>
-          <Text style={styles.subtitle}>Fix Spending Habits in Real Time</Text>
+          <Text style={styles.subtitle}>Smart spending starts with smart awareness</Text>
         </View>
 
         <View style={styles.buttonContainer}>
