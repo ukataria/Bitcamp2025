@@ -523,7 +523,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
         ]}
       >
         <View style={styles.headerContent}>
-          <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
+          <MaterialCommunityIcons name="wallet" size={24} color="#007AFF" />
           <Text style={styles.headerText}>CapitalClarity</Text>
         </View>
       </View>
@@ -537,7 +537,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>Balance</Text>
-              <MaterialCommunityIcons name="chart-pie" size={20} color="#4F46E5" />
+              <MaterialCommunityIcons name="chart-pie" size={20} color="#007AFF" />
             </View>
             <Text style={styles.cardAmount}>${balance.toFixed(2)}</Text>
           </View>
@@ -627,7 +627,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                   >
                     <View style={styles.categoryHeader}>
                       <View style={styles.categoryInfo}>
-                        <MaterialCommunityIcons name={category.icon} size={20} color="#4F46E5" />
+                        <MaterialCommunityIcons name={category.icon} size={20} color="#007AFF" />
                         <Text style={styles.categoryName}>{category.name}</Text>
                       </View>
                       <Text style={styles.categoryAmount}>
@@ -1031,7 +1031,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTypeButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#007AFF',
   },
   typeButtonText: {
     fontSize: 16,
@@ -1046,7 +1046,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#007AFF',
     borderRadius: 12,
     marginTop: 8,
   },
