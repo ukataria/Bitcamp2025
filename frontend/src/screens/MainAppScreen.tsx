@@ -169,8 +169,8 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const importedTransactions = analysisData?.top_transactions || [];
 
   //Modal State
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [modalReason, setModalReason] = useState<string | null>(null);
+  const [isModalVisible, setModalVisible] = useState(true);
+  const [modalReason, setModalReason] = useState<string>("Temporary");
   const [modalSmartScore, setModalScore] = useState<number | null>(null);
 
 
@@ -439,25 +439,28 @@ export default function MainAppScreen({ route }: { route?: any }) {
             <Text style={styles.cardAmount}>${balance.toFixed(2)}</Text>
           </View>
 
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Income</Text>
-              <MaterialCommunityIcons name="arrow-up" size={20} color="#22C55E" />
+          <View style={styles.incomeExpenseContainer}>
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>Income</Text>
+                <MaterialCommunityIcons name="arrow-up" size={20} color="#22C55E" />
+              </View>
+              <Text style={[styles.cardAmount, styles.incomeText]}>
+                ${totalIncome.toFixed(2)}
+              </Text>
             </View>
-            <Text style={[styles.cardAmount, styles.incomeText]}>
-              ${totalIncome.toFixed(2)}
-            </Text>
+
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>Expenses</Text>
+                <MaterialCommunityIcons name="arrow-down" size={20} color="#EF4444" />
+              </View>
+              <Text style={[styles.cardAmount, styles.expenseText]}>
+                ${totalExpenses.toFixed(2)}
+              </Text>
+            </View>
           </View>
 
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Expenses</Text>
-              <MaterialCommunityIcons name="arrow-down" size={20} color="#EF4444" />
-            </View>
-            <Text style={[styles.cardAmount, styles.expenseText]}>
-              ${totalExpenses.toFixed(2)}
-            </Text>
-          </View>
         </View>
 
         <View style={styles.content}>
@@ -735,8 +738,15 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     color: '#111827',
   },
+  incomeExpenseContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   cards: {
     padding: isLargeDevice ? 24 : 16,
+    paddingBottom: isLargeDevice ? 8 : 4,
+    paddingTop: isLargeDevice ? 8 : 4,
     marginTop: 16,
   },
   card: {
@@ -748,7 +758,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: isLargeDevice ? 20 : 16,
+    marginBottom: isLargeDevice ? 12 : 10,
   },
   cardHeader: {
     flexDirection: 'row',

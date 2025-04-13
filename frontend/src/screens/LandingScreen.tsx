@@ -27,9 +27,9 @@ const LandingScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.logoContainer}>
-          <MaterialCommunityIcons name="wallet" size={80} color="#007AFF" />
+          <MaterialCommunityIcons name="wallet" size={160} color="#007AFF" />
           <Text style={styles.title}>SpendWise</Text>
-          <Text style={styles.subtitle}>Your Personal Finance Assistant</Text>
+          <Text style={styles.subtitle}>Fix Spending Habits in Real Time</Text>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     marginVertical: 60,
   },
   title: {
-    fontSize: 32,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#2E2E2E',
     marginTop: 20,
@@ -84,14 +84,16 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
+    justifyContent: 'center',
     gap: 15,
     marginBottom: 40,
   },
   button: {
-    width: '100%',
+    width: '80%',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+    margin: 'auto',
   },
   loginButton: {
     backgroundColor: '#007AFF',

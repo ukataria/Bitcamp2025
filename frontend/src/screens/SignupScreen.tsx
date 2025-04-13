@@ -40,7 +40,7 @@ export default function SignupScreen({ navigation }: SignupScreenProps) {
         </TouchableOpacity>
 
         <View style={styles.header}>
-          <MaterialCommunityIcons name="wallet" size={48} color="#4F46E5" />
+          <MaterialCommunityIcons name="wallet" size={48} color="#007AFF" />
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>
             Sign up to start managing your finances smarter
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   signupButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#007AFF',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginLink: {
-    color: '#4F46E5',
+    color: '#007AFF',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   termsLink: {
-    color: '#4F46E5',
+    color: '#007AFF',
     fontWeight: '500',
   },
 }); 
