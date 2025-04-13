@@ -158,8 +158,9 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const importedTransactions = analysisData?.top_transactions || [];
 
   //Modal State
-  const [isModalVisible, setModalVisible] = useState(true);
+  const [isModalVisible, setModalVisible] = useState(false);
   const [modalReason, setModalReason] = useState<string | null>(null);
+  const [modalSmartScore, setModalScore] = useState<number | null>(null);
 
 
   // Transform imported transactions to match our Transaction type
@@ -347,13 +348,14 @@ export default function MainAppScreen({ route }: { route?: any }) {
       .then(response => response.json())
       .then(data => { console.log(data); transactionAnalysis = data; })
       .catch(error => console.error('Error:', error));
-    if (transactionAnalysis.necessarySpend < 0.4) {
+    if (transactionAnalysis.smartSpend < 0.5) {
       setModalReason(transactionAnalysis.reason);
+      setModalScore(transactionAnalysis.smartSpend * 10)
       setModalVisible(true);
     }
     else {
       console.log("Transaction Passed")
-      console.log(transactionAnalysis.necessarySpend)
+      console.log(transactionAnalysis.smartSpend)
     }
 
   };
@@ -392,6 +394,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       <Modal isVisible={isModalVisible}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Potential Saving Opportunity</Text>
+          <Text style={styles.modalScore}>Smartness Score: {modalSmartScore}</Text>
           <Text style={styles.modalMessage}>{modalReason}</Text>
           <TouchableOpacity style={styles.modalButton} onPress={handleModalClose}>
             <Text style={styles.modalButtonText}>OK</Text>
@@ -987,9 +990,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalScore: {
+    fontSize: 21,
+    color: '#EF4444',
+    marginBottom: 20,
     textAlign: 'center',
   },
   modalMessage: {

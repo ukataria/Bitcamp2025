@@ -39,9 +39,8 @@ class CSVAnalysis(BaseModel):
 
 
 class PaymentClassification(BaseModel):
-  necessarySpend: float
+  smartSpend: float
   reason: str
-  alternatives: str
 
 
 def analyzeCSV(filename):
@@ -133,29 +132,34 @@ def initChat(filename):
     - Amount (transaction amount in USD)
     - Category (e.g., Groceries, Dining, Entertainment, etc.)
 
-    Please analyze this data and generate a detailed report that includes
-
-    **Actionable Recommendations** for how users can adjust their spending habits to shop smarter. For instance, if a certain category shows excessive spending, suggest cost-saving alternatives or tips to curb that expense.
-
-    Please make your analysis as detailed and comprehensive as possible, explaining complex insights step by step and providing numerical details wherever available. Format your output in clearly segmented sections (Overview, Temporal Analysis, Category Analysis, Vendor Analysis, and Recommendations).
-
+    Recognize the spending patterns within the transaction history, especially how expenditures with categories work.
+    Determine how to tell if a purchase is smart or not, where smartness is defined by the tradeoff between the money spent and cheaper alternatives. The goal is detect addictive spending habits, and curb consumerism in real time. 
     """
 
-    chat.send_message([csv_file, prompt])
+    return chat.send_message([csv_file, prompt]).text
 
 def newTransaction(info):
     new_prompt = f"""
         There was a brand new expenditure, labeled as:
-
+        
         Description: {info["description"]}
         Category: {info["category"]}
         Amount: {info["amount"]}
 
-        Based on the previous recent spending, can you analyze how necessary this was.
+        Based on the previous spending, can you analyze how necessary this was, where we define necessary as how important of a purchase it normally is, whether cheaper alternatives are minimal extra work, and past expenditures support that this is not necessary expenditure.
 
-        necessarySpend, a float from 0 to 1 about how necessary it was with 1 being the most necessary
-        reason: In an informative but polite style, rather than conversation, explain why you made this decision, briefly.
-        alternatives: An alternative that could save users money
+        smartSpend, a float from 0 to 1 representing how confident you are in your answer that this is financially smart
+        reason: In an informative but polite style, rather than conversation, explain why you made this decision, briefly. 
+
+        Here are a couple examples:
+        Input: Tamarind Indian Restaurant, Food & Dining Category, $52.00
+        Output: smartSpend : 0.35, reason: While eating out isn't necessarily bad financially, continuing this pattern can become an issue. Consider cooking meals at home or meal prepping!
+
+        Input: UMD Dining Hall, Food & Dining Category, $8.00
+        Output: smartSpend: 0.6, reason: This is a relatively cheap meal, saving time at home. However, bringing packed meals to university can be incredibly financiall beneficial. 
+
+        Input: Aldi's, Groceries, $81.00
+        Output: smartSpend: 0.85, reason: Aldi's is a historicaly cheap grocery outlet, and good job on practicing smart financial sense!
     """
     
     print("Sent LLM Message...")
@@ -167,7 +171,7 @@ def newTransaction(info):
     print(response)
 
 
-    return {"necessarySpend" : float(response.necessarySpend), "reason" : response.reason, "alternatives" : response.alternatives}
+    return {"smartSpend" : float(response.smartSpend), "reason" : response.reason}
 
 def transitionFeedback(info):
     necessaryText = ()
