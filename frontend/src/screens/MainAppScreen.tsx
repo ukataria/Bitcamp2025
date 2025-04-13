@@ -35,6 +35,7 @@ type Transaction = {
   category: string;
   date: string;
   type: 'income' | 'expense';
+  smart: boolean;
   merchant?: string;
   location?: string;
   postDate?: string;
@@ -64,7 +65,8 @@ const mockTransactions: Transaction[] = [
     date: '2024-04-12',
     type: 'expense',
     merchant: 'Whole Foods',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    smart: true
   },
   {
     id: '2',
@@ -73,7 +75,8 @@ const mockTransactions: Transaction[] = [
     category: 'Entertainment',
     date: '2024-04-11',
     type: 'expense',
-    merchant: 'Netflix'
+    merchant: 'Netflix',
+    smart: true
   },
   {
     id: '3',
@@ -82,7 +85,8 @@ const mockTransactions: Transaction[] = [
     category: 'Income',
     date: '2024-04-01',
     type: 'income',
-    merchant: 'Tech Corp Inc'
+    merchant: 'Tech Corp Inc',
+    smart: true
   },
   {
     id: '4',
@@ -92,7 +96,8 @@ const mockTransactions: Transaction[] = [
     date: '2024-04-10',
     type: 'expense',
     merchant: 'Uber Eats',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    smart: true
   },
   {
     id: '5',
@@ -102,7 +107,8 @@ const mockTransactions: Transaction[] = [
     date: '2024-04-08',
     type: 'expense',
     merchant: 'Whole Foods',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    smart: true
   },
   {
     id: '6',
@@ -111,7 +117,8 @@ const mockTransactions: Transaction[] = [
     category: 'Income',
     date: '2024-04-01',
     type: 'income',
-    merchant: 'Tech Corp Inc'
+    merchant: 'Tech Corp Inc',
+    smart: true
   },
   {
     id: '7',
@@ -120,6 +127,7 @@ const mockTransactions: Transaction[] = [
     category: 'Housing',
     date: '2024-04-01',
     type: 'expense',
+    smart: true
   },
   {
     id: '8',
@@ -129,7 +137,8 @@ const mockTransactions: Transaction[] = [
     date: '2024-04-09',
     type: 'expense',
     merchant: 'Uber',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    smart: true
   },
   {
     id: '9',
@@ -139,7 +148,8 @@ const mockTransactions: Transaction[] = [
     date: '2024-04-11',
     type: 'expense',
     merchant: 'Starbucks',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    smart: true
   },
   {
     id: '10',
@@ -149,6 +159,7 @@ const mockTransactions: Transaction[] = [
     date: '2024-04-07',
     type: 'expense',
     merchant: 'Amazon',
+    smart: true
   },
 ];
 
@@ -168,7 +179,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const [modalScore, setModalScore] = useState<number | null>(null);
 
   // Transform imported transactions to match our Transaction type
-  const transformedImportedTransactions = importedTransactions.map((item: any, index: number) => ({
+  const transformedImportedTransactions: Transaction[] = importedTransactions.map((item: any, index: number) => ({
     id: `imported-${index}`,
     description: item.description || "Unknown Transaction",
     amount: Math.abs(parseFloat(item.amount) || 0), // Use absolute value for display, negative values are expenses
@@ -176,7 +187,8 @@ export default function MainAppScreen({ route }: { route?: any }) {
     date: item.transactionDate || new Date().toISOString().split('T')[0],
     type: parseFloat(item.amount) < 0 || item.type === 'Sale' ? 'expense' : 'income',
     merchant: item.description,
-    postDate: item.postDate
+    postDate: item.postDate,
+    smart: true
   }));
 
   // Initialize transactions with imported data if available, otherwise use mock data
@@ -320,6 +332,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       category: newTransaction.category,
       date: new Date().toISOString().split('T')[0],
       type: newTransaction.type,
+      smart: true,
     };
     setTransactions([transaction, ...transactions]);
     setNewTransaction({
@@ -352,6 +365,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       setModalReason(transactionAnalysis.reason);
       //setModalScore(transactionAnalysis.smartSpend * 10);
       setModalVisible(true);
+      transaction.smart = false;
     }
     else {
       console.log("Transaction Passed");
@@ -531,7 +545,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
             <View style={styles.transactionsList}>
               {transactions.slice(0, 10).map(transaction => (
-                <View key={transaction.id} style={styles.transactionItem}>
+                <View key={transaction.id} style={[styles.transactionItem, { backgroundColor: transaction.smart ? "#F9FAFB" : '#FEF2F2' }]}>
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionDescription}>
                       {transaction.description}

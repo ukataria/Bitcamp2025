@@ -123,6 +123,7 @@ def analyzeCSV(filename):
     return ast.literal_eval(text)
 
 def initChat(filename):
+    chat = client.chats.create(model="gemini-2.0-flash")
     csv_file = client.files.upload(file=filename)
 
     prompt = """ 
