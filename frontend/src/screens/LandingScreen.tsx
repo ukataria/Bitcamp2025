@@ -28,7 +28,7 @@ const LandingScreen = () => {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.logoContainer}>
           <MaterialCommunityIcons name="wallet" size={160} color="#007AFF" />
-          <Text style={styles.title}>Capital Clarity</Text>
+          <Text style={styles.title}>CapitalClarity</Text>
           <Text style={styles.subtitle}>Fix Spending Habits in Real Time</Text>
         </View>
 
