@@ -155,7 +155,9 @@ def new_transaction():
 def transaction_feedback():
     data = request.form
 
-    return jsonify(gemini.transitionFeedback(data))
+    gemini.transitionFeedback(data)
+
+    return jsonify({})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001, host = '0.0.0.0')
