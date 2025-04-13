@@ -1,4 +1,4 @@
-const serverUrl = "http://172.20.10.5:5001/";
+const serverUrl = "http://172.20.10.2:5001/";
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -17,16 +17,16 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { Picker } from '@react-native-picker/picker';
+import Modal from 'react-native-modal';
 
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
 ]);
-import { Picker } from '@react-native-picker/picker';
-import Modal from 'react-native-modal';
 
-// Get device dimensions to create responsive layouts
+
 const { width } = Dimensions.get('window');
-const isLargeDevice = width >= 400; // Check if it's a larger device like iPhone 15 Pro Max
+const isLargeDevice = width >= 400;
 
 type Transaction = {
   id: string;
@@ -157,11 +157,15 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const analysisData = route?.params?.analysis || {};
   const importedTransactions = analysisData?.top_transactions || [];
 
-  //Modal State
+  // State for modals
   const [isModalVisible, setModalVisible] = useState(false);
-  const [modalReason, setModalReason] = useState<string | null>(null);
-  const [modalSmartScore, setModalScore] = useState<number | null>(null);
+  const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [isNecessary, setIsNecessary] = useState(false);
 
+  // For transaction smartSpend feedback
+  const [modalReason, setModalReason] = useState<string | null>(null);
+  const [modalScore, setModalScore] = useState<number | null>(null);
 
   // Transform imported transactions to match our Transaction type
   const transformedImportedTransactions = importedTransactions.map((item: any, index: number) => ({
@@ -212,7 +216,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       icon: icon,
       insights: category.points
     };
-  }
+  };
 
   const categories: Category[] = analysisData.actions?.categorical?.map((category: any) => categoryMapping(category)) || [
     { name: 'Food', budget: 300, icon: 'food' },
@@ -222,7 +226,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     { name: 'Shopping', budget: 300, icon: 'cart' },
     { name: 'Income', budget: 0, icon: 'cash' },
   ];
-
+  
   // Create dropdown items from categories
   const categoryItems = categories.map(category => ({
     label: category.name,
@@ -255,11 +259,9 @@ export default function MainAppScreen({ route }: { route?: any }) {
       } else {
         date = new Date(dateString);
       }
-
       if (isNaN(date.getTime())) {
         return dateString;
       }
-
       return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -277,20 +279,13 @@ export default function MainAppScreen({ route }: { route?: any }) {
       achievement: 'trophy',
       tip: 'lightbulb',
     };
-
     const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[item.type?.toLowerCase()] ?? 'info';
-
     return {
       title: item.title,
       description: item.description,
       type: item.type,
       icon: icon,
     };
-  }
-
-  // Modal Alert 
-  const handleModalClose = () => {
-    setModalVisible(false);
   };
 
   // Generate Insights from Analysis
@@ -339,25 +334,29 @@ export default function MainAppScreen({ route }: { route?: any }) {
     formData.append('category', "food");
     formData.append('amount', newTransaction.amount);
 
-    var transactionAnalysis: any = null;
+    let transactionAnalysis: any = null;
 
     await fetch(serverUrl + 'new_transaction', {
       method: 'POST',
       body: formData,
     })
       .then(response => response.json())
-      .then(data => { console.log(data); transactionAnalysis = data; })
+      .then(data => { 
+        console.log(data);
+        transactionAnalysis = data;
+      })
       .catch(error => console.error('Error:', error));
+
+    // If smartSpend indicates a potential saving opportunity, show the modal.
     if (transactionAnalysis.smartSpend < 0.5) {
       setModalReason(transactionAnalysis.reason);
-      setModalScore(transactionAnalysis.smartSpend * 10)
+      //setModalScore(transactionAnalysis.smartSpend * 10);
       setModalVisible(true);
     }
     else {
-      console.log("Transaction Passed")
-      console.log(transactionAnalysis.smartSpend)
+      console.log("Transaction Passed");
+      console.log(transactionAnalysis.smartSpend);
     }
-
   };
 
   const deleteTransaction = (id: string) => {
@@ -379,8 +378,13 @@ export default function MainAppScreen({ route }: { route?: any }) {
       <MaterialCommunityIcons
         name={insight.icon}
         size={24}
-        color={insight.type === 'warning' ? '#DC2626' :
-          insight.type === 'tip' ? '#2563EB' : '#059669'}
+        color={
+          insight.type === 'warning'
+            ? '#DC2626'
+            : insight.type === 'tip'
+            ? '#2563EB'
+            : '#059669'
+        }
       />
       <View style={styles.insightContent}>
         <Text style={styles.insightTitle}>{insight.title}</Text>
@@ -388,23 +392,90 @@ export default function MainAppScreen({ route }: { route?: any }) {
       </View>
     </View>
   );
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <Modal isVisible={isModalVisible}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Potential Saving Opportunity</Text>
-          <Text style={styles.modalScore}>Smartness Score: {modalSmartScore}</Text>
-          <Text style={styles.modalMessage}>{modalReason}</Text>
-          <TouchableOpacity style={styles.modalButton} onPress={handleModalClose}>
-            <Text style={styles.modalButtonText}>OK</Text>
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>Potential Saving Opportunity</Text>
+        <Text style={styles.modalMessage}>{modalReason}</Text>
+        <View style={styles.modalButtonsContainer}>
+          {/* Check button: simply close the modal */}
+          <TouchableOpacity
+            style={styles.modalButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <MaterialCommunityIcons name="check" size={24} color="#FFFFFF" />
           </TouchableOpacity>
+          {/* X button: close current modal and show feedback modal */}
+          <TouchableOpacity
+            style={styles.modalButton}
+            onPress={async () => {
+              setModalVisible(false);
+              await setTimeout( () => setFeedbackModalVisible(true), 1000);
+              console.log("Main modal closed, feedback modal opened.");
+              console.log(isFeedbackModalVisible);
+            }}
+          >
+            <MaterialCommunityIcons name="close" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+
         </View>
-      </Modal>
-      <View style={[
-        styles.header,
-        { marginTop: insets.top > 0 ? insets.top : Platform.OS === 'ios' ? 50 : StatusBar.currentHeight }
-      ]}>
+      </View>
+    </Modal>
+      <Modal isVisible={isFeedbackModalVisible}>
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>Tell Us More</Text>
+        <TextInput
+          style={styles.feedbackInput}
+          placeholder="Enter feedback here..."
+          value={feedbackText}
+          onChangeText={setFeedbackText}
+          multiline={true}
+        />
+        <TouchableOpacity
+          style={styles.modalButton}
+          onPress={async () => {
+            // Send feedback to /feedback endpoint
+            try {
+              const formData = new FormData();
+              formData.append('description', newTransaction.description);
+              formData.append('feedback', feedbackText);
+              const response = await fetch(serverUrl + 'feedback', {
+                method: 'POST',
+                body: formData,
+              });
+              const data = await response.json();
+              console.log('Feedback submitted:', data);
+            } catch (error) {
+              console.error('Feedback error:', error);
+            }
+            setFeedbackModalVisible(false);
+            setFeedbackText("");
+          }}
+        >
+          <Text style={styles.modalButtonText}>Submit Feedback</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.modalButton, { marginTop: 10 }]}
+          onPress={() => setFeedbackModalVisible(false)}
+        >
+          <Text style={styles.modalButtonText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+      <View
+        style={[
+          styles.header,
+          {
+            marginTop:
+              insets.top > 0
+                ? insets.top
+                : Platform.OS === 'ios'
+                ? 50
+                : StatusBar.currentHeight,
+          },
+        ]}
+      >
         <View style={styles.headerContent}>
           <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
           <Text style={styles.headerText}>Smart Finance</Text>
@@ -451,9 +522,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
             <Text style={styles.sectionTitle}>AI Insights</Text>
             <View style={styles.insightsList}>
               {insights.map((insight, index) => (
-                <View key={index}>
-                  {renderInsightCard(insight)}
-                </View>
+                <View key={index}>{renderInsightCard(insight)}</View>
               ))}
             </View>
           </View>
@@ -469,8 +538,11 @@ export default function MainAppScreen({ route }: { route?: any }) {
                     </Text>
                     <Text style={styles.transactionMeta}>
                       {transaction.category} • {formatDate(transaction.date)}
-                      {transaction.merchant && transaction.merchant !== transaction.description && ` • ${transaction.merchant}`}
-                      {transaction.postDate && ` • Posted: ${formatDate(transaction.postDate)}`}
+                      {transaction.merchant &&
+                        transaction.merchant !== transaction.description &&
+                        ` • ${transaction.merchant}`}
+                      {transaction.postDate &&
+                        ` • Posted: ${formatDate(transaction.postDate)}`}
                     </Text>
                   </View>
                   <View style={styles.transactionAmount}>
@@ -512,7 +584,6 @@ export default function MainAppScreen({ route }: { route?: any }) {
                   .filter(t => t.category === category.name && t.type === 'expense')
                   .reduce((sum, t) => sum + t.amount, 0);
                 const percentage = (spent / category.budget) * 100;
-
                 return (
                   <TouchableOpacity
                     key={category.name}
@@ -603,19 +674,15 @@ export default function MainAppScreen({ route }: { route?: any }) {
                   <DropDownPicker
                     open={dropdownOpen}
                     value={newTransaction.category}
-                    items={categoryItems}
+                    items={categoryItems} // Using the properly formatted items array
                     setOpen={setDropdownOpen}
                     setValue={(callback) => {
                       const value = typeof callback === 'function'
                         ? callback(newTransaction.category)
                         : callback;
-
-                      setNewTransaction({
-                        ...newTransaction,
-                        category: value
-                      });
+                      setNewTransaction({ ...newTransaction, category: value });
                     }}
-                    setItems={() => { }} // Not modifying items
+                    setItems={() => {}} // Not modifying items
                     style={styles.dropdown}
                     dropDownContainerStyle={styles.dropdownList}
                     textStyle={styles.dropdownText}
@@ -635,10 +702,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                       newTransaction.type === 'expense' && styles.activeTypeButton,
                     ]}
                     onPress={() =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        type: 'expense',
-                      })
+                      setNewTransaction({ ...newTransaction, type: 'expense' })
                     }
                   >
                     <Text
@@ -657,10 +721,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                       newTransaction.type === 'income' && styles.activeTypeButton,
                     ]}
                     onPress={() =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        type: 'income',
-                      })
+                      setNewTransaction({ ...newTransaction, type: 'income' })
                     }
                   >
                     <Text
@@ -701,7 +762,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   scrollContent: {
-    paddingBottom: 80, // Increased bottom padding for better scrolling experience
+    paddingBottom: 80,
   },
   header: {
     paddingVertical: 16,
@@ -709,7 +770,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
-    // marginTop is now set dynamically in the component
   },
   headerContent: {
     flexDirection: 'row',
@@ -995,22 +1055,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textAlign: 'center',
   },
-  modalScore: {
-    fontSize: 21,
-    color: '#EF4444',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
   modalMessage: {
     fontSize: 16,
     color: '#444',
     marginBottom: 20,
     textAlign: 'center',
   },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 20,
+  },
   modalButton: {
     backgroundColor: '#3B82F6',
     paddingVertical: 10,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     borderRadius: 8,
   },
   modalButtonText: {
@@ -1018,4 +1078,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
+  feedbackInput: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    marginVertical: 20,
+  },
 });
+
