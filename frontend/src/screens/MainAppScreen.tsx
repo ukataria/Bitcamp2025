@@ -1,6 +1,6 @@
 const serverUrl = "http://172.20.10.2:5001/";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -23,7 +23,6 @@ import Modal from 'react-native-modal';
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
 ]);
-
 
 const { width } = Dimensions.get('window');
 const isLargeDevice = width >= 400;
@@ -168,7 +167,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const analysisData = route?.params?.analysis || {};
   const importedTransactions = analysisData?.top_transactions || [];
 
-  // State for modals
+  // State for modals and feedback toggle
   const [isModalVisible, setModalVisible] = useState(false);
   const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
@@ -182,7 +181,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const transformedImportedTransactions: Transaction[] = importedTransactions.map((item: any, index: number) => ({
     id: `imported-${index}`,
     description: item.description || "Unknown Transaction",
-    amount: Math.abs(parseFloat(item.amount) || 0), // Use absolute value for display, negative values are expenses
+    amount: Math.abs(parseFloat(item.amount) || 0),
     category: item.category || 'Uncategorized',
     date: item.transactionDate || new Date().toISOString().split('T')[0],
     type: parseFloat(item.amount) < 0 || item.type === 'Sale' ? 'expense' : 'income',
@@ -191,7 +190,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     smart: true
   }));
 
-  // Initialize transactions with imported data if available, otherwise use mock data
+  // Initialize transactions with imported data if available; otherwise use mock data
   const [transactions, setTransactions] = useState<Transaction[]>(
     transformedImportedTransactions.length > 0 ? transformedImportedTransactions : mockTransactions
   );
@@ -218,9 +217,9 @@ export default function MainAppScreen({ route }: { route?: any }) {
       entertainment: 'Entertainment'
     };
 
-    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[category.type?.toLowerCase()] ?? 'food';
-    const budget: number = budgetMap[category.type?.toLowerCase()] ?? 0;
-    const name: string = nameMap[category.type?.toLowerCase()] ?? 'None';
+    const icon = iconMap[category.type?.toLowerCase()] ?? 'food';
+    const budget = budgetMap[category.type?.toLowerCase()] ?? 0;
+    const name = nameMap[category.type?.toLowerCase()] ?? 'None';
 
     return {
       name: name,
@@ -259,7 +258,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('Food');
 
-  // Use insets to get safe area values
+  // Get safe area insets
   const insets = useSafeAreaInsets();
 
   const formatDate = (dateString: string) => {
@@ -291,7 +290,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       achievement: 'trophy',
       tip: 'lightbulb',
     };
-    const icon: keyof typeof MaterialCommunityIcons.glyphMap = iconMap[item.type?.toLowerCase()] ?? 'info';
+    const icon = iconMap[item.type?.toLowerCase()] ?? 'info';
     return {
       title: item.title,
       description: item.description,
@@ -300,7 +299,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     };
   };
 
-  // Generate Insights from Analysis
+  // Generate AI Insights
   const insights: InsightType[] = analysisData.actions?.general?.map((item: any) => analysisMapping(item)) || [
     {
       title: "High Spending on Food",
@@ -360,11 +359,11 @@ export default function MainAppScreen({ route }: { route?: any }) {
       })
       .catch(error => console.error('Error:', error));
 
-    // If smartSpend indicates a potential saving opportunity, show the modal.
+    // If smartSpend indicates low smartness (< 0.5), show the modal.
     if (transactionAnalysis.smartSpend < 0.5) {
       setModalReason(transactionAnalysis.reason);
-      //setModalScore(transactionAnalysis.smartSpend * 10);
       setModalVisible(true);
+      // Mark transaction as not smart
       transaction.smart = false;
     }
     else {
@@ -406,9 +405,10 @@ export default function MainAppScreen({ route }: { route?: any }) {
       </View>
     </View>
   );
-  return (
-    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-      <Modal isVisible={isModalVisible}>
+
+  // Modal for transaction analysis feedback (shows two buttons: check and X)
+  const renderFeedbackModal = () => (
+    <Modal isVisible={isModalVisible}>
       <View style={styles.modalContainer}>
         <Text style={styles.modalTitle}>Potential Saving Opportunity</Text>
         <Text style={styles.modalMessage}>{modalReason}</Text>
@@ -420,40 +420,55 @@ export default function MainAppScreen({ route }: { route?: any }) {
           >
             <MaterialCommunityIcons name="check" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-          {/* X button: close current modal and show feedback modal */}
+          {/* X button: close main modal and then open feedback modal */}
           <TouchableOpacity
             style={styles.modalButton}
-            onPress={async () => {
+            onPress={() => {
               setModalVisible(false);
-              await setTimeout( () => setFeedbackModalVisible(true), 1000);
-              console.log("Main modal closed, feedback modal opened.");
-              console.log(isFeedbackModalVisible);
+              setTimeout(() => {
+                setFeedbackModalVisible(true);
+                console.log("Main modal closed, feedback modal opened.");
+              }, 1000);
             }}
           >
             <MaterialCommunityIcons name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-
         </View>
       </View>
     </Modal>
-      <Modal isVisible={isFeedbackModalVisible}>
+  );
+
+  // Modal for user feedback with a "Was this purchase necessary?" toggle
+  const renderUserFeedbackModal = () => (
+    <Modal isVisible={isFeedbackModalVisible}>
       <View style={styles.modalContainer}>
         <Text style={styles.modalTitle}>Tell Us More</Text>
+        <View style={styles.toggleContainer}>
+          <Text style={styles.toggleLabel}>Was this purchase necessary?</Text>
+          <TouchableOpacity
+            style={[styles.toggleButton, isNecessary && styles.toggleButtonActive]}
+            onPress={() => setIsNecessary(!isNecessary)}
+          >
+            <Text style={styles.toggleButtonText}>
+              {isNecessary ? 'YES' : 'NO'}
+            </Text>
+          </TouchableOpacity>
+        </View>
         <TextInput
           style={styles.feedbackInput}
           placeholder="Enter feedback here..."
           value={feedbackText}
           onChangeText={setFeedbackText}
-          multiline={true}
+          multiline
         />
         <TouchableOpacity
           style={styles.modalButton}
           onPress={async () => {
-            // Send feedback to /feedback endpoint
             try {
               const formData = new FormData();
               formData.append('description', newTransaction.description);
               formData.append('feedback', feedbackText);
+              formData.append('necessary', isNecessary ? 'true' : 'false');
               const response = await fetch(serverUrl + 'feedback', {
                 method: 'POST',
                 body: formData,
@@ -465,31 +480,35 @@ export default function MainAppScreen({ route }: { route?: any }) {
             }
             setFeedbackModalVisible(false);
             setFeedbackText("");
+            setIsNecessary(false);
           }}
         >
           <Text style={styles.modalButtonText}>Submit Feedback</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.modalButton, { marginTop: 10 }]}
-          onPress={() => setFeedbackModalVisible(false)}
+          onPress={() => {
+            setFeedbackModalVisible(false);
+            setFeedbackText("");
+            setIsNecessary(false);
+          }}
         >
           <Text style={styles.modalButtonText}>Cancel</Text>
         </TouchableOpacity>
       </View>
     </Modal>
-      <View
-        style={[
-          styles.header,
-          {
-            marginTop:
-              insets.top > 0
-                ? insets.top
-                : Platform.OS === 'ios'
-                ? 50
-                : StatusBar.currentHeight,
-          },
-        ]}
-      >
+  );
+
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
+      {renderFeedbackModal()}
+      {renderUserFeedbackModal()}
+      <View style={[
+        styles.header,
+        {
+          marginTop: insets.top > 0 ? insets.top : (Platform.OS === 'ios' ? 50 : StatusBar.currentHeight),
+        },
+      ]}>
         <View style={styles.headerContent}>
           <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
           <Text style={styles.headerText}>Smart Finance</Text>
@@ -509,7 +528,6 @@ export default function MainAppScreen({ route }: { route?: any }) {
             </View>
             <Text style={styles.cardAmount}>${balance.toFixed(2)}</Text>
           </View>
-
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>Income</Text>
@@ -519,7 +537,6 @@ export default function MainAppScreen({ route }: { route?: any }) {
               ${totalIncome.toFixed(2)}
             </Text>
           </View>
-
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>Expenses</Text>
@@ -552,24 +569,18 @@ export default function MainAppScreen({ route }: { route?: any }) {
                     </Text>
                     <Text style={styles.transactionMeta}>
                       {transaction.category} • {formatDate(transaction.date)}
-                      {transaction.merchant &&
-                        transaction.merchant !== transaction.description &&
-                        ` • ${transaction.merchant}`}
-                      {transaction.postDate &&
-                        ` • Posted: ${formatDate(transaction.postDate)}`}
+                      {transaction.merchant && transaction.merchant !== transaction.description && ` • ${transaction.merchant}`}
+                      {transaction.postDate && ` • Posted: ${formatDate(transaction.postDate)}`}
                     </Text>
                   </View>
                   <View style={styles.transactionAmount}>
                     <Text
                       style={[
                         styles.amount,
-                        transaction.type === 'income'
-                          ? styles.incomeText
-                          : styles.expenseText,
+                        transaction.type === 'income' ? styles.incomeText : styles.expenseText,
                       ]}
                     >
-                      {transaction.type === 'income' ? '+' : '-'}$
-                      {transaction.amount.toFixed(2)}
+                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
                     </Text>
                     <TouchableOpacity
                       onPress={() => deleteTransaction(transaction.id)}
@@ -606,11 +617,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                   >
                     <View style={styles.categoryHeader}>
                       <View style={styles.categoryInfo}>
-                        <MaterialCommunityIcons
-                          name={category.icon}
-                          size={20}
-                          color="#4F46E5"
-                        />
+                        <MaterialCommunityIcons name={category.icon} size={20} color="#4F46E5" />
                         <Text style={styles.categoryName}>{category.name}</Text>
                       </View>
                       <Text style={styles.categoryAmount}>
@@ -618,20 +625,12 @@ export default function MainAppScreen({ route }: { route?: any }) {
                       </Text>
                     </View>
                     <View style={styles.progressBar}>
-                      <View
-                        style={[
-                          styles.progressFill,
-                          {
-                            width: `${Math.min(percentage, 100)}%`,
-                            backgroundColor:
-                              percentage > 100
-                                ? '#DC2626'
-                                : percentage > 75
-                                  ? '#D97706'
-                                  : '#059669',
-                          },
-                        ]}
-                      />
+                      <View style={[
+                        styles.progressFill,
+                        { width: `${Math.min(percentage, 100)}%`,
+                          backgroundColor: percentage > 100 ? '#DC2626' : percentage > 75 ? '#D97706' : '#059669'
+                        }
+                      ]} />
                     </View>
                     {selectedCategory === category.name && category.insights && (
                       <View style={styles.categoryInsights}>
@@ -656,12 +655,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                 <TextInput
                   style={styles.input}
                   value={newTransaction.description}
-                  onChangeText={text =>
-                    setNewTransaction({
-                      ...newTransaction,
-                      description: text,
-                    })
-                  }
+                  onChangeText={text => setNewTransaction({ ...newTransaction, description: text })}
                   placeholder="Enter description"
                 />
               </View>
@@ -671,12 +665,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                 <TextInput
                   style={styles.input}
                   value={newTransaction.amount}
-                  onChangeText={text =>
-                    setNewTransaction({
-                      ...newTransaction,
-                      amount: text,
-                    })
-                  }
+                  onChangeText={text => setNewTransaction({ ...newTransaction, amount: text })}
                   placeholder="Enter amount"
                   keyboardType="decimal-pad"
                 />
@@ -688,15 +677,13 @@ export default function MainAppScreen({ route }: { route?: any }) {
                   <DropDownPicker
                     open={dropdownOpen}
                     value={newTransaction.category}
-                    items={categoryItems} // Using the properly formatted items array
+                    items={categoryItems}
                     setOpen={setDropdownOpen}
                     setValue={(callback) => {
-                      const value = typeof callback === 'function'
-                        ? callback(newTransaction.category)
-                        : callback;
+                      const value = typeof callback === 'function' ? callback(newTransaction.category) : callback;
                       setNewTransaction({ ...newTransaction, category: value });
                     }}
-                    setItems={() => {}} // Not modifying items
+                    setItems={() => {}}
                     style={styles.dropdown}
                     dropDownContainerStyle={styles.dropdownList}
                     textStyle={styles.dropdownText}
@@ -711,50 +698,25 @@ export default function MainAppScreen({ route }: { route?: any }) {
                 <Text style={styles.label}>Type</Text>
                 <View style={styles.typeButtons}>
                   <TouchableOpacity
-                    style={[
-                      styles.typeButton,
-                      newTransaction.type === 'expense' && styles.activeTypeButton,
-                    ]}
-                    onPress={() =>
-                      setNewTransaction({ ...newTransaction, type: 'expense' })
-                    }
+                    style={[styles.typeButton, newTransaction.type === 'expense' && styles.activeTypeButton]}
+                    onPress={() => setNewTransaction({ ...newTransaction, type: 'expense' })}
                   >
-                    <Text
-                      style={[
-                        styles.typeButtonText,
-                        newTransaction.type === 'expense' &&
-                        styles.activeTypeButtonText,
-                      ]}
-                    >
+                    <Text style={[styles.typeButtonText, newTransaction.type === 'expense' && styles.activeTypeButtonText]}>
                       Expense
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[
-                      styles.typeButton,
-                      newTransaction.type === 'income' && styles.activeTypeButton,
-                    ]}
-                    onPress={() =>
-                      setNewTransaction({ ...newTransaction, type: 'income' })
-                    }
+                    style={[styles.typeButton, newTransaction.type === 'income' && styles.activeTypeButton]}
+                    onPress={() => setNewTransaction({ ...newTransaction, type: 'income' })}
                   >
-                    <Text
-                      style={[
-                        styles.typeButtonText,
-                        newTransaction.type === 'income' &&
-                        styles.activeTypeButtonText,
-                      ]}
-                    >
+                    <Text style={[styles.typeButtonText, newTransaction.type === 'income' && styles.activeTypeButtonText]}>
                       Income
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={addTransaction}
-              >
+              <TouchableOpacity style={styles.addButton} onPress={addTransaction}>
                 <MaterialCommunityIcons name="plus" size={20} color="#FFFFFF" />
                 <Text style={styles.addButtonText}>Add Transaction</Text>
               </TouchableOpacity>
@@ -1100,5 +1062,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 20,
   },
+  toggleContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  toggleLabel: { fontSize: 16, marginRight: 10 },
+  toggleButton: { backgroundColor: '#EF4444', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 12 },
+  toggleButtonActive: { backgroundColor: '#22C55E' },
+  toggleButtonText: { color: '#FFFFFF', fontWeight: 'bold' },
 });
 
