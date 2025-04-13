@@ -1,4 +1,4 @@
-const serverUrl = "http://172.20.10.2:5001/";
+const serverUrl = "http://172.20.10.5:5001/";
 
 import React, { useState } from 'react';
 import {
@@ -361,7 +361,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       body: formData,
     })
       .then(response => response.json())
-      .then(data => { 
+      .then(data => {
         console.log("new_transaction analysis response:", data);
         transactionAnalysis = data;
       })
@@ -467,21 +467,24 @@ export default function MainAppScreen({ route }: { route?: any }) {
           style={styles.modalButton}
           onPress={async () => {
             try {
+              if (lastTransaction != null) {
+                lastTransaction.smart = isNecessary;
+              }
               const formData = new FormData();
               formData.append('description', lastTransaction?.description || '');
               formData.append('category', lastTransaction?.category || '');
               formData.append('amount', lastTransaction ? String(lastTransaction.amount) : '');
               formData.append('necessary', isNecessary ? 'true' : 'false');
               formData.append('reason', reason);
-            
-              (formData as any)._parts.forEach(([key, value]: [string, any]) => 
-              console.log(`${key}: ${value}`));
+
+              (formData as any)._parts.forEach(([key, value]: [string, any]) =>
+                console.log(`${key}: ${value}`));
 
               const response = await fetch(`${serverUrl}feedback`, {
                 method: 'POST',
                 body: formData,
               });
-              
+
             } catch (error) {
               console.error('Feedback error:', error);
             }
@@ -521,7 +524,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
       >
         <View style={styles.headerContent}>
           <MaterialCommunityIcons name="wallet" size={24} color="#4F46E5" />
-          <Text style={styles.headerText}>Smart Finance</Text>
+          <Text style={styles.headerText}>CapitalClarity</Text>
         </View>
       </View>
 
