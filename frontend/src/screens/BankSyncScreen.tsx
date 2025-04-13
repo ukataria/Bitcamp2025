@@ -1,4 +1,4 @@
-const serverUrl = "http://10.165.9.169:5001";
+const serverUrl = "http://172.20.10.5:5001/";
 
 import React, { useState } from 'react';
 
@@ -118,7 +118,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <MaterialCommunityIcons name="bank-transfer" size={40} color="#4F46E5" />
+          <MaterialCommunityIcons name="bank-transfer" size={40} color="#007AFF" />
           <Text style={styles.title}>Connect Your Bank</Text>
           <Text style={styles.subtitle}>
             Securely connect your bank account to get started with Smart Finance
@@ -143,7 +143,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
                     <MaterialCommunityIcons
                       name={bank.icon as any}
                       size={24}
-                      color="#4F46E5"
+                      color="#007AFF"
                     />
                     <Text style={styles.bankName}>{bank.name}</Text>
                     {syncingBank === bank.id && (
@@ -151,7 +151,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
                         <MaterialCommunityIcons
                           name="sync"
                           size={20}
-                          color="#4F46E5"
+                          color="#007AFF"
                         />
                         <Text style={styles.syncingText}>Connecting...</Text>
                       </View>
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bankItemSyncing: {
-    borderColor: '#4F46E5',
+    borderColor: '#007AFF',
     backgroundColor: '#EEF2FF',
   },
   bankName: {
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   syncingText: {
     fontSize: 14,
-    color: '#4F46E5',
+    color: '#007AFF',
     marginLeft: 8,
   },
   successContainer: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#007AFF',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   continueButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#007AFF',
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
