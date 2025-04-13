@@ -1,4 +1,4 @@
-const serverUrl = "http://10.20.59.57:5001/";
+const serverUrl = "http://10.165.9.169:5001";
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -21,6 +21,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
 ]);
+import { Picker } from '@react-native-picker/picker';
+import { Modal } from 'react-native-modal';
 
 // Get device dimensions to create responsive layouts
 const { width } = Dimensions.get('window');
@@ -155,6 +157,11 @@ export default function MainAppScreen({ route }: { route?: any }) {
   const analysisData = route?.params?.analysis || {};
   const importedTransactions = analysisData?.top_transactions || [];
 
+  //Modal State
+  const [isModalVisible, setModalVisible] = useState(true);
+  const [modalReason, setModalReason] = useState<string | null>(null);
+
+
   // Transform imported transactions to match our Transaction type
   const transformedImportedTransactions = importedTransactions.map((item: any, index: number) => ({
     id: `imported-${index}`,
@@ -214,7 +221,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     { name: 'Shopping', budget: 300, icon: 'cart' },
     { name: 'Income', budget: 0, icon: 'cash' },
   ];
-  
+
   // Create dropdown items from categories
   const categoryItems = categories.map(category => ({
     label: category.name,
@@ -280,6 +287,11 @@ export default function MainAppScreen({ route }: { route?: any }) {
     };
   }
 
+  // Modal Alert 
+  const handleModalClose = () => {
+    setModalVisible(false);
+  };
+
   // Generate Insights from Analysis
   const insights: InsightType[] = analysisData.actions?.general?.map((item: any) => analysisMapping(item)) || [
     {
@@ -336,11 +348,8 @@ export default function MainAppScreen({ route }: { route?: any }) {
       .then(data => { console.log(data); transactionAnalysis = data; })
       .catch(error => console.error('Error:', error));
     if (transactionAnalysis.necessarySpend < 0.4) {
-      Alert.alert(
-        "Potential Saving Opportunity",
-        transactionAnalysis.reason,
-        [{ text: "OK" }]
-      );
+      setModalReason(transactionAnalysis.reason);
+      setModalVisible(true);
     }
     else {
       console.log("Transaction Passed")
@@ -380,6 +389,15 @@ export default function MainAppScreen({ route }: { route?: any }) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
+      <Modal isVisible={isModalVisible}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Potential Saving Opportunity</Text>
+          <Text style={styles.modalMessage}>{modalReason}</Text>
+          <TouchableOpacity style={styles.modalButton} onPress={handleModalClose}>
+            <Text style={styles.modalButtonText}>OK</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <View style={[
         styles.header,
         { marginTop: insets.top > 0 ? insets.top : Platform.OS === 'ios' ? 50 : StatusBar.currentHeight }
@@ -585,16 +603,16 @@ export default function MainAppScreen({ route }: { route?: any }) {
                     items={categoryItems}
                     setOpen={setDropdownOpen}
                     setValue={(callback) => {
-                      const value = typeof callback === 'function' 
-                        ? callback(newTransaction.category) 
+                      const value = typeof callback === 'function'
+                        ? callback(newTransaction.category)
                         : callback;
-                      
+
                       setNewTransaction({
                         ...newTransaction,
                         category: value
                       });
                     }}
-                    setItems={() => {}} // Not modifying items
+                    setItems={() => { }} // Not modifying items
                     style={styles.dropdown}
                     dropDownContainerStyle={styles.dropdownList}
                     textStyle={styles.dropdownText}
@@ -902,7 +920,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   dropdownContainer: {
-    marginBottom: 20, 
+    marginBottom: 20,
   },
   dropdown: {
     backgroundColor: '#F9FAFB',
@@ -961,5 +979,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginLeft: 8,
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: '#444',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButton: {
+    backgroundColor: '#3B82F6',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

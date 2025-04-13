@@ -1,4 +1,4 @@
-const serverUrl = "http://10.20.59.57:5001/";
+const serverUrl = "http://10.165.9.169:5001";
 
 import React, { useState } from 'react';
 

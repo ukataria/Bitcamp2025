@@ -169,4 +169,23 @@ def newTransaction(info):
 
     return {"necessarySpend" : float(response.necessarySpend), "reason" : response.reason, "alternatives" : response.alternatives}
 
+def transitionFeedback(info):
+    necessaryText = ()
+    prompt = f"""
+        The previous expenditure described by:
+
+        Description: {info["description"]}
+        Category: {info["category"]}
+        Amount: {info["amount"]}
+
+        actually turned out to be: {"necessary" if bool(info["necessary"]) else "unnecessary"}
+
+        The reasoning provided by the user was: {info["reason"]}
+
+        You should use this information for later transactions, learning how things are classified.
+    """
+
+    print("Sent LLM Correction Message...")
+    response = chat.send_message(prompt)
+    print(response.text)
 
