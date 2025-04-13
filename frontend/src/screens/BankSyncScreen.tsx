@@ -72,7 +72,7 @@ export default function BankSyncScreen({ navigation }: BankSyncScreenProps) {
 
       // Send to backend
 
-      const response = await fetch('http://10.20.59.57:5001/analyze_spending', {
+      const response = await fetch('http://10.174.238.213:5001/analyze_spending', {
         method: 'POST',
         body: formData,
         headers: {
