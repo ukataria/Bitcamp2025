@@ -38,7 +38,7 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
@@ -170,5 +170,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
 
 export default LoginScreen; 

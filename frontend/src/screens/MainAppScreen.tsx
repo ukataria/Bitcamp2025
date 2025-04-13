@@ -240,7 +240,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
     { name: 'Shopping', budget: 300, icon: 'cart' },
     { name: 'Income', budget: 0, icon: 'cash' },
   ];
-  
+
   // Create dropdown items from categories
   const categoryItems = categories.map(category => ({
     label: category.name,
@@ -397,8 +397,8 @@ export default function MainAppScreen({ route }: { route?: any }) {
           insight.type === 'warning'
             ? '#DC2626'
             : insight.type === 'tip'
-            ? '#2563EB'
-            : '#059669'
+              ? '#2563EB'
+              : '#059669'
         }
       />
       <View style={styles.insightContent}>
@@ -538,25 +538,29 @@ export default function MainAppScreen({ route }: { route?: any }) {
             </View>
             <Text style={styles.cardAmount}>${balance.toFixed(2)}</Text>
           </View>
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Income</Text>
-              <MaterialCommunityIcons name="arrow-up" size={20} color="#22C55E" />
+
+          <View style={styles.incomeExpenseContainer}>
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>Income</Text>
+                <MaterialCommunityIcons name="arrow-up" size={20} color="#22C55E" />
+              </View>
+              <Text style={[styles.cardAmount, styles.incomeText]}>
+                ${totalIncome.toFixed(2)}
+              </Text>
             </View>
-            <Text style={[styles.cardAmount, styles.incomeText]}>
-              ${totalIncome.toFixed(2)}
-            </Text>
-          </View>
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Expenses</Text>
-              <MaterialCommunityIcons name="arrow-down" size={20} color="#EF4444" />
+
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>Expenses</Text>
+                <MaterialCommunityIcons name="arrow-down" size={20} color="#EF4444" />
+              </View>
+              <Text style={[styles.cardAmount, styles.expenseText]}>
+                ${totalExpenses.toFixed(2)}
+              </Text>
             </View>
-            <Text style={[styles.cardAmount, styles.expenseText]}>
-              ${totalExpenses.toFixed(2)}
-            </Text>
           </View>
-        </View>
+        </View >
 
         <View style={styles.content}>
           <View style={styles.section}>
@@ -628,15 +632,13 @@ export default function MainAppScreen({ route }: { route?: any }) {
                       </Text>
                     </View>
                     <View style={styles.progressBar}>
-                      <View
-                        style={[
-                          styles.progressFill,
-                          {
-                            width: `${Math.min(percentage, 100)}%`,
-                            backgroundColor: percentage > 100 ? '#DC2626' : percentage > 75 ? '#D97706' : '#059669',
-                          },
-                        ]}
-                      />
+                      <View style={[
+                        styles.progressFill,
+                        {
+                          width: `${Math.min(percentage, 100)}%`,
+                          backgroundColor: percentage > 100 ? '#DC2626' : percentage > 75 ? '#D97706' : '#059669'
+                        }
+                      ]} />
                     </View>
                     {selectedCategory === category.name && category.insights && (
                       <View style={styles.categoryInsights}>
@@ -694,7 +696,7 @@ export default function MainAppScreen({ route }: { route?: any }) {
                           : callback;
                       setNewTransaction({ ...newTransaction, category: value });
                     }}
-                    setItems={() => {}}
+                    setItems={() => { }}
                     style={styles.dropdown}
                     dropDownContainerStyle={styles.dropdownList}
                     textStyle={styles.dropdownText}
@@ -748,8 +750,8 @@ export default function MainAppScreen({ route }: { route?: any }) {
             </View>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </ScrollView >
+    </SafeAreaView >
   );
 }
 
@@ -782,8 +784,15 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     color: '#111827',
   },
+  incomeExpenseContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   cards: {
     padding: isLargeDevice ? 24 : 16,
+    paddingBottom: isLargeDevice ? 8 : 4,
+    paddingTop: isLargeDevice ? 8 : 4,
     marginTop: 16,
   },
   card: {
@@ -795,7 +804,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: isLargeDevice ? 20 : 16,
+    marginBottom: isLargeDevice ? 12 : 10,
   },
   cardHeader: {
     flexDirection: 'row',
