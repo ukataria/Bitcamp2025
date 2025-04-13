@@ -76,80 +76,86 @@ def analyze_chunk():
 
     print(f"Received frame: {file.filename}")
 
-    actions = gemini.analyzeCSV(csvfilename)
+    # actions = gemini.analyzeCSV(csvfilename)
     gemini.initChat(csvfilename)
 
     top_transactions = parse_csv_for_transactions(csvfilename)
 
 
-#     return jsonify({
-#     "actions": {
-#         "categorical": [
-#             {
-#                 "points": [
-#                     "Your grocery spending has been relatively stable over the past few months.",
-#                     "Consider using coupons or loyalty programs to save on grocery purchases.",
-#                     "Your frequent grocery stores include UMD Dining Venues and Lidl."
-#                 ],
-#                 "type": "groceries"
-#             },
-#             {
-#                 "points": [
-#                     "Your recent travel spending includes flights with United Airlines and transportation using Smart Trip.",
-#                     "Evaluate the cost-effectiveness of different transportation options for your regular routes.",
-#                     "Consider booking flights in advance to take advantage of lower fares."
-#                 ],
-#                 "type": "travel"
-#             },
-#             {
-#                 "points": [
-#                     "You frequently dine at Taco Bell and Moge Tee College Park.",
-#                     "Consider exploring new dining options to diversify your food experiences.",
-#                     "Your average meal expense is slightly above the average for similar households."
-#                 ],
-#                 "type": "meals"
-#             },
-#             {
-#                 "points": [
-#                     "Your recent entertainment expenses include a visit to Wynwood Walls Tour and a Fliff transaction.",
-#                     "Consider setting a monthly entertainment budget to manage your spending in this category.",
-#                     "Explore free or low-cost entertainment options in your area."
-#                 ],
-#                 "type": "entertainment"
-#             }
-#         ],
-#         "general": [
-#             {
-#                 "description": "You've spent almost the exact same amount on Food & Drink for the last 3 months, indicating a high level of routine in your eating habits. Consider exploring new restaurants or cooking at home more often to diversify your spending and potentially save money.",
-#                 "title": "Consistent Spending Alert",
-#                 "type": "warning"
-#             },
-#             {
-#                 "description": "Categorizing all your transactions will allow you to track your budget more efficiently. If you have transactions that do not have a category, consider adding one.",
-#                 "title": "Budget Tracking Tip",
-#                 "type": "tip"
-#             },
-#             {
-#                 "description": "Congratulations! Your travel expenses are 30% lower this month compared to the previous month. Keep up the good work in managing your travel budget!",
-#                 "title": "Reduced Travel Expenses",
-#                 "type": "achievement"
-#             }
-#         ]
-#     },
-#     "top_transactions": []
-# })
+    return jsonify({
+    "actions": {
+        "categorical": [
+            {
+                "points": [
+                    "Your grocery spending has been relatively stable over the past few months.",
+                    "Consider using coupons or loyalty programs to save on grocery purchases.",
+                    "Your frequent grocery stores include UMD Dining Venues and Lidl."
+                ],
+                "type": "groceries"
+            },
+            {
+                "points": [
+                    "Your recent travel spending includes flights with United Airlines and transportation using Smart Trip.",
+                    "Evaluate the cost-effectiveness of different transportation options for your regular routes.",
+                    "Consider booking flights in advance to take advantage of lower fares."
+                ],
+                "type": "travel"
+            },
+            {
+                "points": [
+                    "You frequently dine at Taco Bell and Moge Tee College Park.",
+                    "Consider exploring new dining options to diversify your food experiences.",
+                    "Your average meal expense is slightly above the average for similar households."
+                ],
+                "type": "meals"
+            },
+            {
+                "points": [
+                    "Your recent entertainment expenses include a visit to Wynwood Walls Tour and a Fliff transaction.",
+                    "Consider setting a monthly entertainment budget to manage your spending in this category.",
+                    "Explore free or low-cost entertainment options in your area."
+                ],
+                "type": "entertainment"
+            }
+        ],
+        "general": [
+            {
+                "description": "You've spent almost the exact same amount on Food & Drink for the last 3 months, indicating a high level of routine in your eating habits. Consider exploring new restaurants or cooking at home more often to diversify your spending and potentially save money.",
+                "title": "Consistent Spending Alert",
+                "type": "warning"
+            },
+            {
+                "description": "Categorizing all your transactions will allow you to track your budget more efficiently. If you have transactions that do not have a category, consider adding one.",
+                "title": "Budget Tracking Tip",
+                "type": "tip"
+            },
+            {
+                "description": "Congratulations! Your travel expenses are 30% lower this month compared to the previous month. Keep up the good work in managing your travel budget!",
+                "title": "Reduced Travel Expenses",
+                "type": "achievement"
+            }
+        ]
+    },
+    "top_transactions": top_transactions
+})
 
     os.remove(csvfilename)
-    return jsonify({
-        "actions": actions,
-        "top_transactions": top_transactions
-    })
+    # return jsonify({
+    #     "actions": actions,
+    #     "top_transactions": top_transactions
+    # })
 
 @app.route("/new_transaction", methods=["POST"])
 def new_transaction():
     data = request.form
 
     return jsonify(gemini.newTransaction(data))
+
+@app.route("/feedback", methods=["POST"])
+def transaction_feedback():
+    data = request.form
+
+    return jsonify(gemini.transitionFeedback(data))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001, host = '0.0.0.0')
